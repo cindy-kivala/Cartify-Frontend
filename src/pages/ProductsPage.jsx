@@ -1,75 +1,87 @@
-// client/src/pages/ProductForm.jsx
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-const ProductSchema = Yup.object().shape({
-  name: Yup.string().required("Product name is required"),
-  price: Yup.number()
-    .positive("Price must be greater than 0")
-    .required("Price is required"),
-});
+export default function ProductPage() {
+  const [products, setProducts] = useState([]);
+  const [editingProduct, setEditingProduct] = useState(null);
 
-function ProductForm() {
-  const navigate = useNavigate();
-  const { id } = useParams(); // product id from route
-  const [initialValues, setInitialValues] = useState({ name: "", price: "" });
-  const [isEditing, setIsEditing] = useState(false);
-
-  // Load product if editing
+  // fetch products
   useEffect(() => {
-    if (id) {
-      setIsEditing(true);
-      fetch(`/products/${id}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setInitialValues({ name: data.name, price: data.price });
-        })
-        .catch((err) => console.error("Error loading product:", err));
-    }
-  }, [id]);
+    fetch("http://localhost:5000/products")
+      .then((res) => res.json())
+      .then(setProducts)
+      .catch((err) => console.error("Error fetching products:", err));
+  }, []);
 
-  const handleSubmit = async (values) => {
-    try {
-      const url = id ? `/products/${id}` : "/products";
-      const method = id ? "PATCH" : "POST";
+  // validation schema
+  const ProductSchema = Yup.object().shape({
+    name: Yup.string().required("Name is required"),
+    price: Yup.number()
+      .positive("Price must be greater than 0")
+      .required("Price is required"),
+  });
 
-      const res = await fetch(url, {
-        method,
+  // handle form submit (add or edit)
+  const handleSubmit = (values, { resetForm }) => {
+    if (editingProduct) {
+      // editing existing product
+      fetch(`http://localhost:5000/products/${editingProduct.id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
-      });
-
-      if (!res.ok) throw new Error("Failed to save product");
-
-      navigate("/products");
-    } catch (err) {
-      console.error("Error saving product:", err);
+      })
+        .then((res) => res.json())
+        .then((updatedProduct) => {
+          setProducts((prev) =>
+            prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
+          );
+          setEditingProduct(null);
+          resetForm();
+        });
+    } else {
+      // adding new product
+      fetch("http://localhost:5000/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      })
+        .then((res) => res.json())
+        .then((newProduct) => {
+          setProducts((prev) => [...prev, newProduct]);
+          resetForm();
+        });
     }
   };
 
-  return (
-    <div className="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md">
-      <h2 className="text-xl font-bold mb-4">
-        {isEditing ? "Edit Product" : "Add Product"}
-      </h2>
+  // handle delete
+  const handleDelete = (id) => {
+    fetch(`http://localhost:5000/products/${id}`, {
+      method: "DELETE",
+    }).then(() => {
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+    });
+  };
 
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Products</h1>
+
+      {/* formik form for add/edit */}
       <Formik
-        initialValues={initialValues}
-        enableReinitialize // re-renders form when data loads
+        initialValues={{
+          name: editingProduct?.name || "",
+          price: editingProduct?.price || "",
+        }}
+        enableReinitialize
         validationSchema={ProductSchema}
         onSubmit={handleSubmit}
       >
-        {() => (
-          <Form className="space-y-4">
+        {({ resetForm }) => (
+          <Form className="mb-6 space-y-3">
             <div>
-              <label className="block text-gray-700">Name</label>
-              <Field
-                name="name"
-                className="border p-2 w-full rounded"
-                placeholder="Enter product name"
-              />
+              <label className="block font-medium">Name</label>
+              <Field name="name" className="border px-2 py-1 w-full" />
               <ErrorMessage
                 name="name"
                 component="div"
@@ -78,12 +90,11 @@ function ProductForm() {
             </div>
 
             <div>
-              <label className="block text-gray-700">Price</label>
+              <label className="block font-medium">Price</label>
               <Field
-                name="price"
                 type="number"
-                className="border p-2 w-full rounded"
-                placeholder="Enter price"
+                name="price"
+                className="border px-2 py-1 w-full"
               />
               <ErrorMessage
                 name="price"
@@ -92,17 +103,59 @@ function ProductForm() {
               />
             </div>
 
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              {isEditing ? "Update Product" : "Add Product"}
-            </button>
+            <div className="space-x-2">
+              <button
+                type="submit"
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
+                {editingProduct ? "Update Product" : "Add Product"}
+              </button>
+
+              {editingProduct && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingProduct(null);
+                    resetForm();
+                  }}
+                  className="bg-gray-400 text-white px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
           </Form>
         )}
       </Formik>
+
+      {/* product list */}
+      <ul className="space-y-2">
+        {products.map((product) => (
+          <li
+            key={product.id}
+            className="flex justify-between items-center border p-3 rounded"
+          >
+            <div>
+              <p className="font-semibold">{product.name}</p>
+              <p>${product.price}</p>
+            </div>
+            <div className="space-x-2">
+              <button
+                onClick={() => setEditingProduct(product)}
+                className="bg-yellow-500 text-white px-3 py-1 rounded"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(product.id)}
+                className="bg-red-500 text-white px-3 py-1 rounded"
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
-
-export default ProductForm;
