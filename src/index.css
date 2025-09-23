@@ -217,3 +217,5 @@ h1, h2 {
 
 /* ========== Extras ========== */
 .product-price::before { content: "$"; margin-right: 4px; color: var(--accent-b); font-weight: 900; }
+
+
