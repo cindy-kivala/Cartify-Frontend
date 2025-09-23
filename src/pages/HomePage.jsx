@@ -1,5 +1,4 @@
-import { Link } from "react-router-dom";
-
+import { useState, useEffect } from "react";
 
 function HomePage() {
   const [products, setProducts] = useState([]);
@@ -17,18 +16,16 @@ function HomePage() {
       body: JSON.stringify({ ...product, quantity: 1 }),
     });
   };
- 
+
   return (
-    <div className="products-page p-6">
-      <h1 className="">Home - Products</h1>
-      <div className="grid grid-cols-3 gap-4">
+    <div className="products-page">
+      <h1 className="page-title">Home - Products</h1>
+      <div className="products-grid">
         {products.map((p) => (
-          <div key={p.id} className="border p-4">
-            <h2 className="font-bold">{p.name}</h2>
-            <p>${p.price}</p>
-            <button
-              onClick={() => addToCart(p)}
-            >
+          <div key={p.id} className="product-card">
+            <h2 className="product-name">{p.name}</h2>
+            <p className="product-price">${p.price}</p>
+            <button onClick={() => addToCart(p)} className="btn-secondary">
               Add to Cart
             </button>
           </div>

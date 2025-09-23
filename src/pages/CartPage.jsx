@@ -7,15 +7,11 @@ function CartPage() {
   useEffect(() => {
     fetch("http://localhost:5000/cart")
       .then((res) => res.json())
-      .then((data) => {
-        console.log("Fetched cart:", data);
-        setCart(data);
-      })
+      .then(setCart)
       .catch((err) => console.error("Error fetching cart:", err));
   }, []);
 
   const updateItem = (id, quantity) => {
-    console.log(`Updating cart item ${id} with quantity ${quantity}`);
     fetch(`http://localhost:5000/cart/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -23,13 +19,11 @@ function CartPage() {
     })
       .then((res) => res.json())
       .then((updated) => {
-        console.log("Updated item:", updated);
         setCart(cart.map((item) => (item.id === id ? updated : item)));
       });
   };
 
   const removeItem = (id) => {
-    console.log("Removing cart item:", id);
     fetch(`http://localhost:5000/cart/${id}`, {
       method: "DELETE",
     }).then(() => {
@@ -38,16 +32,20 @@ function CartPage() {
   };
 
   return (
-    <div>
-      <h1>Cart Page</h1>
-      {cart.map((item) => (
-        <CartItem
-          key={item.id}
-          item={item}
-          onUpdate={updateItem}
-          onRemove={removeItem}
-        />
-      ))}
+    <div className="cart-page">
+      <h1 className="page-title">Your Shopping Cart</h1>
+      {cart.length === 0 ? (
+        <p className="empty-message">Your cart is empty.</p>
+      ) : (
+        cart.map((item) => (
+          <CartItem
+            key={item.id}
+            item={item}
+            onUpdate={updateItem}
+            onRemove={removeItem}
+          />
+        ))
+      )}
     </div>
   );
 }

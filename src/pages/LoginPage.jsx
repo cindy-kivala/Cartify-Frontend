@@ -9,7 +9,6 @@ function LoginPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Logging in with:", form);
     fetch("http://localhost:5000/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -21,15 +20,16 @@ function LoginPage() {
   };
 
   return (
-    <div>
-      <h1>Login Page</h1>
-      <form onSubmit={handleSubmit}>
+    <div className="login-page">
+      <h1 className="page-title">Login</h1>
+      <form onSubmit={handleSubmit} className="login-form">
         <input
           type="text"
           name="username"
           value={form.username}
           onChange={handleChange}
           placeholder="Username"
+          required
         />
         <input
           type="password"
@@ -37,8 +37,11 @@ function LoginPage() {
           value={form.password}
           onChange={handleChange}
           placeholder="Password"
+          required
         />
-        <button type="submit">Login</button>
+        <button type="submit" className="btn-primary">
+          Login
+        </button>
       </form>
     </div>
   );
