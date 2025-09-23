@@ -4,7 +4,9 @@ import axios from "axios";
 
 const schema = Yup.object({
   name: Yup.string().required("Name is required"),
-  price: Yup.number().positive("Price must be > 0").required("Price is required"),
+  price: Yup.number()
+    .positive("Price must be > 0")
+    .required("Price is required"),
 });
 
 export default function ProductForm({ onSuccess }) {
@@ -18,16 +20,27 @@ export default function ProductForm({ onSuccess }) {
         onSuccess();
       }}
     >
-      <Form className="flex gap-2 mt-2">
-        <div>
-          <Field name="name" placeholder="Product Name" className="border p-1" />
-          <ErrorMessage name="name" component="div" className="text-red-500 text-sm" />
+      <Form className="product-form">
+        <div className="form-group">
+          <label className="form-label">Product Name</label>
+          <Field name="name" placeholder="Product Name" className="form-input" />
+          <ErrorMessage name="name" component="div" className="form-error" />
         </div>
-        <div>
-          <Field name="price" placeholder="Price" type="number" className="border p-1" />
-          <ErrorMessage name="price" component="div" className="text-red-500 text-sm" />
+
+        <div className="form-group">
+          <label className="form-label">Price</label>
+          <Field
+            name="price"
+            placeholder="Price"
+            type="number"
+            className="form-input"
+          />
+          <ErrorMessage name="price" component="div" className="form-error" />
         </div>
-        <button type="submit" className="bg-blue-500 text-white px-3 py-1 rounded">Add</button>
+
+        <button type="submit" className="btn btn-primary">
+          Add
+        </button>
       </Form>
     </Formik>
   );

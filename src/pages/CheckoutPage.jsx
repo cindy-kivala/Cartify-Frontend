@@ -2,11 +2,7 @@ import { useEffect, useState } from "react";
 
 function CheckoutPage() {
   const [cart, setCart] = useState([]);
-  const [form, setForm] = useState({
-    name: "",
-    address: "",
-    payment: "Credit Card",
-  });
+  const [form, setForm] = useState({ name: "", address: "", payment: "Credit Card" });
 
   useEffect(() => {
     fetch("http://localhost:5000/cart")
@@ -20,36 +16,29 @@ function CheckoutPage() {
 
   const placeOrder = (e) => {
     e.preventDefault();
-
-    // Clear cart items in backend
     cart.forEach((item) =>
       fetch(`http://localhost:5000/cart/${item.id}`, { method: "DELETE" })
     );
-
-    alert(
-      `Order placed!\nName: ${form.name}\nAddress: ${form.address}\nPayment: ${form.payment}`
-    );
+    alert(`Order placed!\nName: ${form.name}\nAddress: ${form.address}\nPayment: ${form.payment}`);
   };
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
-    <div className="ckecout-page">
-      <h1>Checkout</h1>
+    <div className="checkout-page">
+      <h1 className="page-title">Checkout</h1>
 
-      {/* Cart Summary */}
-      <ul>
+      <ul className="checkout-summary">
         {cart.map((item) => (
-          <li key={item.id}>
-            {item.name} x {item.quantity} = ${item.price * item.quantity}
+          <li key={item.id} className="checkout-item">
+            {item.name} × {item.quantity} = ${item.price * item.quantity}
           </li>
         ))}
       </ul>
-      <h2 className="mt-4 font-bold">Total: ${total}</h2>
+      <h2 className="checkout-total">Total: ${total}</h2>
 
-      {/* Checkout Form */}
-      <form onSubmit={placeOrder} className="checkout form">
-        <label className="block">
+      <form onSubmit={placeOrder} className="checkout-form">
+        <label>
           Name:
           <input
             type="text"
@@ -57,12 +46,11 @@ function CheckoutPage() {
             value={form.name}
             onChange={handleChange}
             placeholder="Enter your name"
-            className="nameinput"
             required
           />
         </label>
 
-        <label className="block">
+        <label>
           Address:
           <input
             type="text"
@@ -70,19 +58,13 @@ function CheckoutPage() {
             value={form.address}
             onChange={handleChange}
             placeholder="Enter your address"
-            className="addressinput"
             required
           />
         </label>
 
-        <label className="block">
+        <label>
           Payment Method:
-          <select
-            name="payment"
-            value={form.payment}
-            onChange={handleChange}
-            className="paymentselect"
-          >
+          <select name="payment" value={form.payment} onChange={handleChange}>
             <option>Credit Card</option>
             <option>Mpesa</option>
             <option>PayPal</option>
@@ -90,10 +72,7 @@ function CheckoutPage() {
           </select>
         </label>
 
-        <button
-          type="submit"
-          className="checkoutbutton"
-        >
+        <button type="submit" className="btn-primary">
           Place Order
         </button>
       </form>

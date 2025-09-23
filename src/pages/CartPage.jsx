@@ -9,16 +9,13 @@ function CartPage() {
   useEffect(() => {
     fetch(`http://localhost:5000/cart/${userId}`)
       .then((res) => res.json())
-      .then((data) => {
-        console.log("Fetched cart:", data);
-        setCart(data);
-      })
+      .then(setCart)
       .catch((err) => console.error("Error fetching cart:", err));
   }, [userId]);
 
   // Update quantity of a cart item
-  const updateItem = (cartItemId, quantity) => {
-    fetch(`http://localhost:5000/cart/${userId}/${cartItemId}`, {
+  const updateItem = (id, quantity) => {
+    fetch(`http://localhost:5000/cart/${userId}/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ quantity }),
@@ -26,18 +23,18 @@ function CartPage() {
       .then((res) => res.json())
       .then((updated) => {
         console.log("Updated item:", updated);
-        setCart(cart.map((item) => (item.id === cartItemId ? updated : item)));
+        setCart(cart.map((item) => (item.id === id ? updated : item)));
       })
       .catch((err) => console.error("Error updating item:", err));
   };
 
   // Remove a cart item
-  const removeItem = (cartItemId) => {
-    fetch(`http://localhost:5000/cart/${userId}/${cartItemId}`, {
+  const removeItem = (id) => {
+    fetch(`http://localhost:5000/cart/${userId}/${id}`, {
       method: "DELETE",
     })
       .then(() => {
-        setCart(cart.filter((item) => item.id !== cartItemId));
+        setCart(cart.filter((item) => item.id !== id));
       })
       .catch((err) => console.error("Error removing item:", err));
   };
@@ -70,8 +67,8 @@ function CartPage() {
             <CartItem
               key={item.id}
               item={item}
-              onUpdate={(qty) => updateItem(item.id, qty)}
-              onRemove={() => removeItem(item.id)}
+              onUpdate={updateItem}
+              onRemove={removeItem}
             />
           ))}
         </ul>
@@ -81,3 +78,4 @@ function CartPage() {
 }
 
 export default CartPage;
+
