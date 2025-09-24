@@ -3,6 +3,21 @@ import { useState, useEffect } from "react";
 function HomePage({ userId, addToCart }) {
   const [products, setProducts] = useState([]);
 
+  const addProductToCart = async (product) => {
+    try {
+      const res = await fetch(`http://localhost:5000/cart/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product_id: product.id, quantity: 1 }),
+      });
+      const data = await res.json();
+      console.log("Added to cart:", data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
   const handleAddToCart = (product) => {
     if (!userId) {
       alert("Please log in to add items to cart");
@@ -16,17 +31,9 @@ function HomePage({ userId, addToCart }) {
   useEffect(() => {
     fetch("http://localhost:5000/products")
       .then((r) => r.json())
-      .then(setProducts);
+      .then(setProducts)
+      .catch((err) => console.error(err));
   }, []);
-
-  const addProductToCart = async (product) => {
-    await fetch(`http://localhost:5000/cart/${userId}`, {
-     method: "POST",
-     headers: { "Content-Type": "application/json" },
-     body: JSON.stringify({ product_id: product.id, quantity: 1 }),
-  });
-};
-
 
   return (
     <div className="products-page">

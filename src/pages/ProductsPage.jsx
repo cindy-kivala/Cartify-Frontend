@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import ProductCard from "../components/ProductCard";
 
@@ -14,7 +15,6 @@ export default function ProductsPage({ userId, addToCart}) {
     "Baby Products",
     "Clothing"
   ];
-
 
   useEffect(() => {
     fetch("http://localhost:5000/products")
@@ -54,9 +54,10 @@ export default function ProductsPage({ userId, addToCart}) {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "20px",
+          gap: "20px"
         }}
-      >
+        >
+
        {filteredProducts.map((product) => (
          <ProductCard
           key={product.id}
