@@ -29,15 +29,20 @@ function CartPage() {
   };
 
   // Remove a cart item
-  const removeItem = (id) => {
-    fetch(`http://localhost:5000/cart/${userId}/${id}`, {
+  const removeItem = async (cartItemId) => {
+  try {
+    const res = await fetch(`http://localhost:5000/cart/1/${cartItemId}`, {
       method: "DELETE",
-    })
-      .then(() => {
-        setCart(cart.filter((item) => item.id !== id));
-      })
-      .catch((err) => console.error("Error removing item:", err));
-  };
+    });
+    if (!res.ok) throw new Error("Failed to delete item");
+
+    // Update UI
+    setCart(cart.filter(item => item.id !== cartItemId));
+  } catch (err) {
+    console.error("Error removing item:", err);
+  }
+};
+
 
   // Add a new item to the cart (example)
   const addItem = () => {
@@ -67,8 +72,8 @@ function CartPage() {
             <CartItem
               key={item.id}
               item={item}
-              onUpdate={updateItem}
-              onRemove={removeItem}
+              onUpdate={(newQty) => handleUpdate(item.id, newQty)}
+              onRemove={() => handleRemove(item.id)}
             />
           ))}
         </ul>

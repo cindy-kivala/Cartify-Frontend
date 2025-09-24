@@ -1,14 +1,16 @@
 // src/App.jsx
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import ProductsPage from "./pages/ProductPage";
+import { useState } from "react";
+import { Routes, Route, Link } from "react-router-dom";
+import ProductsPage from "./pages/ProductsPage";
 import OrdersPage from "./pages/OrdersPage";
 import HomePage from "./pages/HomePage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 
 
-function Navbar() {
+function Navbar({ cartCount }) {
   return (
     <nav className="navbar">
       <h1 className="navbar-logo">E-Commerce</h1>
@@ -38,22 +40,46 @@ function Navbar() {
 
 function App() {
    const [cart, setCart] = useState([]);
+   const [currentUser, setCurrentUser] = useState(null); 
 
   // CREATE: add product to cart
+  
   const addToCart = (product) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
-        // update quantity if already in cart
         return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
       return [...prev, { ...product, quantity: 1 }];
     });
   };
+
+  const handleAddToCart = async (product) => {
+  if (!userId) {
+    alert("Please login first to add items to the cart!");
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:5000/cart/${userId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ product_id: product.id, quantity: 1 }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to add to cart");
+    }
+
+    const data = await response.json();
+    console.log("Added to cart:", data);
+  } catch (err) {
+    console.error("Add to cart error:", err);
+  }
+};
+
 
   // UPDATE: change quantity
   const updateQuantity = (id, quantity) => {
@@ -68,18 +94,37 @@ function App() {
   const removeFromCart = (id) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
   };
-
+ 
+  // Logout function
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setCart([]); 
+  };
 
   return (
-    <Router>
       <div className="app-container">
-        <Navbar cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} />
+        <Navbar 
+           cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
+           currentUser={currentUser}
+           handleLogout={handleLogout}
+        />
         <main className="main-content">
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={
+              <HomePage
+                userId={currentUser?.id}
+                addToCart={addToCart}
+              />
+            }
+           />
             <Route
               path="/products"
-              element={<ProductsPage addToCart={addToCart} />}
+              element={
+              <ProductsPage 
+                 userId={currentUser?.id}
+                 addToCart={addToCart}
+               />
+              }
             />
             <Route path="/orders" element={<OrdersPage />} />
             <Route
@@ -87,20 +132,19 @@ function App() {
               element={
                 <CartPage
                   cart={cart}
-                  updateQuantity={updateQuantity}
-                  removeFromCart={removeFromCart}
                 />
               }
             />
             <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/login" element={<LoginPage setCurrentUser={setCurrentUser} />} />
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/register" element={<RegisterPage />} />
           </Routes>
         </main>
         <footer className="footer">
           <p>&copy; 2025 E-Commerce App</p>
         </footer>
       </div>
-    </Router>
   );
 }
 

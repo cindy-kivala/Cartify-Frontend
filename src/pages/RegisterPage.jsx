@@ -1,5 +1,6 @@
 
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Link } from "react-router-dom";
 import * as Yup from "yup";
 import axios from "axios";
 
@@ -70,6 +71,9 @@ function RegisterPage() {
           <button type="submit">Register</button>
         </Form>
       </Formik>
+      <p>
+        Already have an account? <Link to="/login">Login</Link>
+      </p>
     </div>
   );
 }

@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react";
 
-function HomePage() {
+function HomePage({ userId, addToCart }) {
   const [products, setProducts] = useState([]);
+
+  const handleAddToCart = (product) => {
+    if (!userId) {
+      alert("Please log in to add items to cart");
+      return;
+    }
+
+   addProductToCart(product);
+  };
+
 
   useEffect(() => {
     fetch("http://localhost:5000/products")
@@ -9,13 +19,14 @@ function HomePage() {
       .then(setProducts);
   }, []);
 
-  const addToCart = (product) => {
-    fetch("http://localhost:5000/cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...product, quantity: 1 }),
-    });
-  };
+  const addProductToCart = async (product) => {
+    await fetch(`http://localhost:5000/cart/${userId}`, {
+     method: "POST",
+     headers: { "Content-Type": "application/json" },
+     body: JSON.stringify({ product_id: product.id, quantity: 1 }),
+  });
+};
+
 
   return (
     <div className="products-page">
@@ -25,7 +36,7 @@ function HomePage() {
           <div key={p.id} className="product-card">
             <h2 className="product-name">{p.name}</h2>
             <p className="product-price">${p.price}</p>
-            <button onClick={() => addToCart(p)} className="btn-secondary">
+            <button onClick={() => handleAddToCart({ id: 1, name: "Sample Product" })}>
               Add to Cart
             </button>
           </div>

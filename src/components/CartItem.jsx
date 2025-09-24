@@ -9,7 +9,7 @@ function CartItem({ item, onUpdate, onRemove }) {
       >
         -
       </button>
-      <button onClick={onRemove}>Remove</button>
+      <button onClick={() => onRemove(item.id)}>Remove</button>
     </li>
   );
 }

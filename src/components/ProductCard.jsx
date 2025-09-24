@@ -1,47 +1,89 @@
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import axios from "axios";
+import React from "react";
 
-const schema = Yup.object({
-  name: Yup.string().required("Name is required"),
-  price: Yup.number()
-    .positive("Price must be > 0")
-    .required("Price is required"),
-});
+function ProductCard({ product, userId, onAddToCart }) {
+  const handleAddToCart = async () => {
+    if (!userId) {
+      alert("User not logged in!");
+      return;
+  }
 
-export default function ProductForm({ onSuccess }) {
+    try {
+      const response = await fetch(`http://localhost:5000/cart/${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ product_id: product.id, quantity: 1 }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`Added to cart: ${product.name} (Qty: ${product.quantity})`);
+        if (onAddToCart) onAddToCart(product); // optional callback to update cart counter
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+      alert("Failed to add to cart. Check console for details.");
+    }
+  };
+  
   return (
-    <Formik
-      initialValues={{ name: "", price: "" }}
-      validationSchema={schema}
-      onSubmit={async (values, { resetForm }) => {
-        await axios.post("http://localhost:5000/products", values);
-        resetForm();
-        onSuccess();
+    <div
+      className="product-card"
+      style={{
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+        padding: "10px",
+        textAlign: "center",
+        backgroundColor: "#fff",
       }}
     >
-      <Form className="product-form">
-        <div className="form-group">
-          <label className="form-label">Product Name</label>
-          <Field name="name" placeholder="Product Name" className="form-input" />
-          <ErrorMessage name="name" component="div" className="form-error" />
+      {product.image ? (
+        <img
+          src={product.image}
+          alt={product.name}
+          style={{ width: "100%", height: "150px", objectFit: "cover" }}
+        />
+      ) : (
+        <div
+          style={{
+            width: "100%",
+            height: "150px",
+            backgroundColor: "#eee",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#888",
+          }}
+        >
+          No Image
         </div>
-
-        <div className="form-group">
-          <label className="form-label">Price</label>
-          <Field
-            name="price"
-            placeholder="Price"
-            type="number"
-            className="form-input"
-          />
-          <ErrorMessage name="price" component="div" className="form-error" />
-        </div>
-
-        <button type="submit" className="btn btn-primary">
-          Add
-        </button>
-      </Form>
-    </Formik>
+      )}
+      <h3>{product.name}</h3>
+      <p style={{ fontSize: "0.9rem", color: "#555" }}>
+        Category: {product.category || "Uncategorized"}
+      </p>
+      <p style={{ fontSize: "0.9rem" }}>{product.details}</p>
+      <p style={{ fontWeight: "bold", marginTop: "5px" }}>${product.price}</p>
+      <button
+        onClick={handleAddToCart}
+        style={{
+          marginTop: "10px",
+          padding: "5px 10px",
+          border: "none",
+          borderRadius: "5px",
+          backgroundColor: "#007bff",
+          color: "#fff",
+          cursor: "pointer",
+        }}
+      >
+        Add to Cart
+      </button>
+    </div>
   );
 }
+
+export default ProductCard;
