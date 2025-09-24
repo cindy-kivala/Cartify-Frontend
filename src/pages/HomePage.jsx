@@ -6,15 +6,19 @@ function HomePage() {
   useEffect(() => {
     fetch("http://localhost:5000/products")
       .then((r) => r.json())
-      .then(setProducts);
+      .then(setProducts)
+      .catch((err) => console.error(err));
   }, []);
 
   const addToCart = (product) => {
     fetch("http://localhost:5000/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...product, quantity: 1 }),
-    });
+      body: JSON.stringify({ product_id: product.id, quantity: 1 }),
+    })
+      .then((res) => res.json())
+      .then((data) => console.log("Added to cart:", data))
+      .catch((err) => console.error(err));
   };
 
   return (
