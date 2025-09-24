@@ -10,10 +10,10 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 
 
-function Navbar({ cartCount }) {
+function Navbar({ currentUser, handleLogout }) {
   return (
     <nav className="navbar">
-      <h1 className="navbar-logo">E-Commerce</h1>
+      <h1 className="navbar-logo">Cartify</h1>
       <div className="navbar-links">
         <Link to="/" className="nav-link">
         Home
@@ -21,11 +21,11 @@ function Navbar({ cartCount }) {
         <Link to="/products" className="nav-link">
           Products
         </Link>
+        <Link to="/cart" className="nav-link">
+          Cart
+        </Link>
         <Link to="/orders" className="nav-link">
           Orders
-        </Link>
-        <Link to="/cart" className="nav-link">
-          Cart ({cartCount})
         </Link>
         <Link to="/checkout" className="nav-link">
         Checkout

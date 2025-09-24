@@ -1,39 +1,53 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-function LoginPage() {
-  const [form, setForm] = useState({ username: "", password: "" });
-  const [currentUser, setCurrentUser] = useState(null);
+export default function LoginPage({ onLogin}) {
+  
   const [email, setEmail]= useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("")
+  const navigate = useNavigate();
 
-
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+  
   try {
     const res = await fetch("http://localhost:5000/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+     method: "POST",
+     headers: { "Content-Type": "application/json" },
+     body: JSON.stringify({ email, password }),
     });
-    
-    const data = await res.json();
 
+    // Read response text first
+    const text = await res.text();
+
+    // Try parsing JSON if text exists
+    let data;
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+     data = {};
+    }
+
+    // Check HTTP status
     if (!res.ok) {
-      setError(data.error); // catch invalid credentials
-      } else {
-        console.log("Login successful", data);
-        setCurrentUser(data);
-        }
-  } catch (err) {
-    console.error("Fetch error:", err);
-    setError("Network error. Please try again later.");
-  }
-};
+     throw new Error(data.error || `HTTP error! status: ${res.status}`);
+   }
+
+    // Successful login
+    console.log("Login successful:", data);
+    // persist user
+    localStorage.setItem("user", JSON.stringify(data));
+    if (onLogin) onLogin(data);
+
+    navigate("/products"); // Redirect to products page
+
+   } catch (err) {
+      setError(err.message);
+      console.error("Fetch error:", err);
+    }
+ };
 
   return (
     <div className="login-page">
@@ -59,11 +73,10 @@ const handleSubmit = async (e) => {
           Login
         </button>
       </form>
+      {error && <p style={{ color: "red" }}>{error}</p>}
       <p>
         Click here to <Link to="/register">Register</Link>
       </p>
     </div>
   );
 }
-
-export default LoginPage;

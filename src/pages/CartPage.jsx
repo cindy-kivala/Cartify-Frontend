@@ -1,84 +1,129 @@
 import { useEffect, useState } from "react";
-import CartItem from "../components/CartItem";
 
 function CartPage() {
-  const [cart, setCart] = useState([]);
-  const userId = 1; // example user
+  const [cartItems, setCartItems] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user")); // Logged-in user
 
-  // Fetch cart items for the user
   useEffect(() => {
-    fetch(`http://localhost:5000/cart/${userId}`)
-      .then((res) => res.json())
-      .then(setCart)
-      .catch((err) => console.error("Error fetching cart:", err));
-  }, [userId]);
+    if (user) {
+      // Fetch persisted cart from backend
+      fetch(`http://localhost:5000/cart/${user.id}`)
+        .then((res) => res.json())
+        .then((data) => setCartItems(data))
+        .catch((err) => console.error("Failed to fetch cart:", err));
+    } else {
+      // Guest cart from localStorage
+      const localCart = JSON.parse(localStorage.getItem("cart")) || [];
+      setCartItems(localCart);
+    }
+  }, [user]); // Reload when user changes
 
-  // Update quantity of a cart item
-  const updateItem = (id, quantity) => {
-    fetch(`http://localhost:5000/cart/${userId}/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ quantity }),
-    })
-      .then((res) => res.json())
-      .then((updated) => {
-        console.log("Updated item:", updated);
-        setCart(cart.map((item) => (item.id === id ? updated : item)));
-      })
-      .catch((err) => console.error("Error updating item:", err));
-  };
+  // Update quantity by passing the new value directly
+const updateQuantity = async (item, newQuantity) => {
+  if (newQuantity < 1) return; // Prevent quantity < 1
 
-  // Remove a cart item
-  const removeItem = async (cartItemId) => {
-  try {
-    const res = await fetch(`http://localhost:5000/cart/1/${cartItemId}`, {
-      method: "DELETE",
-    });
-    if (!res.ok) throw new Error("Failed to delete item");
-
-    // Update UI
-    setCart(cart.filter(item => item.id !== cartItemId));
-  } catch (err) {
-    console.error("Error removing item:", err);
+  if (user) {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/cart/${user.id}/${item.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quantity: newQuantity }),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to update quantity");
+      const updatedItem = await res.json();
+      setCartItems((prev) =>
+        prev.map((i) => (i.id === item.id ? updatedItem : i))
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  } else {
+    const updatedCart = cartItems.map((i) =>
+      i.id === item.id ? { ...i, quantity: newQuantity } : i
+    );
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    setCartItems(updatedCart);
   }
 };
 
 
-  // Add a new item to the cart (example)
-  const addItem = () => {
-    const newItem = { product_id: 1, quantity: 1 }; // example product
-    fetch(`http://localhost:5000/cart/${userId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newItem),
-    })
-      .then((res) => res.json())
-      .then((added) => {
-        console.log("Added item:", added);
-        setCart([...cart, added]);
-      })
-      .catch((err) => console.error("Error adding item:", err));
+
+  const removeItem = async (item) => {
+    if (user) {
+      try {
+        await fetch(`http://localhost:5000/cart/${user.id}/${item.id}`, {
+          method: "DELETE",
+        });
+        setCartItems((prev) => prev.filter((i) => i.id !== item.id));
+      } catch (err) {
+        console.error("Failed to remove item:", err);
+      }
+    } else {
+      const localCart = JSON.parse(localStorage.getItem("cart")) || [];
+      const updatedCart = localCart.filter((i) => i.id !== item.id);
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      setCartItems(updatedCart);
+    }
   };
 
+   // Compute cart total
+  const cartTotal = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+
   return (
-    <div>
-      <h1>User {userId} Cart</h1>
-      <button onClick={addItem}>Add Example Product</button>
-      {cart.length === 0 ? (
-        <p>Cart is empty.</p>
+    <div style={{ padding: "40px 20px", minHeight: "100vh" }}>
+      <h1 style={{ textAlign: "center", marginBottom: "30px" }}>Your Cart</h1>
+      {cartItems.length === 0 ? (
+        <p style={{ textAlign: "center" }}>Your cart is empty.</p>
       ) : (
-        <ul>
-          {cart.map((item) => (
-            <CartItem
+        <div style={{ display: "grid", gap: "20px" }}>
+          {cartItems.map((item) => (
+            <div
               key={item.id}
-              item={item}
-              onUpdate={(newQty) => handleUpdate(item.id, newQty)}
-              onRemove={() => handleRemove(item.id)}
-            />
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "10px",
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+                backgroundColor: "#fff",
+              }}
+            >
+
+             <span>{item.name}</span>
+              <span>${item.price.toFixed(2)}</span>
+              <div>
+                <button onClick={() => updateQuantity(item, item.quantity - 1)}>
+                  -
+                </button>
+                <input
+                  type="number"
+                  value={item.quantity}
+                  onChange={(e) =>
+                    updateQuantity(item, Number(e.target.value))
+                  }
+                  style={{ width: "50px", textAlign: "center", margin: "0 5px" }}
+                />
+                <button onClick={() => updateQuantity(item, item.quantity + 1)}>
+                  +
+                </button>
+              </div>
+              <button onClick={() => removeItem(item)} style={{ color: "red" }}>
+                Remove
+              </button>
+            </div>
           ))}
-        </ul>
+          <h2>Total: ${cartTotal.toFixed(2)}</h2>
+        </div>
       )}
     </div>
+
   );
 }
 

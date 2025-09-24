@@ -1,44 +1,31 @@
 import React from "react";
 
-function ProductCard({ product, userId, onAddToCart }) {
-  const handleAddToCart = async () => {
-    if (!userId) {
-      alert("User not logged in!");
-      return;
-  }
-
-    try {
-      const response = await fetch(`http://localhost:5000/cart/${userId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ product_id: product.id, quantity: 1 }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert(`Added to cart: ${product.name} (Qty: ${product.quantity})`);
-        if (onAddToCart) onAddToCart(product); // optional callback to update cart counter
-      } else {
-        alert(`Error: ${data.error}`);
-      }
-    } catch (err) {
-      console.error("Error adding to cart:", err);
-      alert("Failed to add to cart. Check console for details.");
-    }
-  };
+function ProductCard({ product, onAddToCart }) {
   
   return (
     <div
       className="product-card"
       style={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
         border: "1px solid #ccc",
-        borderRadius: "8px",
+        borderRadius: "10px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
         padding: "10px",
         textAlign: "center",
         backgroundColor: "#fff",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+      }}
+
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "scale(1.03)";
+        e.currentTarget.style.boxShadow = "0 6px 18px rgba(0,0,0,0.15)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "scale(1)";
+        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
       }}
     >
       {product.image ? (
@@ -59,7 +46,7 @@ function ProductCard({ product, userId, onAddToCart }) {
             color: "#888",
           }}
         >
-          No Image
+          {product.image}
         </div>
       )}
       <h3>{product.name}</h3>
@@ -69,15 +56,16 @@ function ProductCard({ product, userId, onAddToCart }) {
       <p style={{ fontSize: "0.9rem" }}>{product.details}</p>
       <p style={{ fontWeight: "bold", marginTop: "5px" }}>${product.price}</p>
       <button
-        onClick={handleAddToCart}
+        onClick={() => onAddToCart(product)}
         style={{
           marginTop: "10px",
-          padding: "5px 10px",
+          padding: "8px 10px",
           border: "none",
-          borderRadius: "5px",
-          backgroundColor: "#007bff",
+          borderRadius: "6px",
+          background: "linear-gradient(90deg, #FF4500, #FF6347)",
           color: "#fff",
           cursor: "pointer",
+          transition: "all 0.3s ease",
         }}
       >
         Add to Cart
