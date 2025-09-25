@@ -45,12 +45,25 @@ export const signupUser = (data) =>
 export const getCartItems = (username) =>
   fetch(`${API_URL}/cart/${username}`).then(res => res.json());
 
-export const addCartItem = (userId, item) =>
-  fetch(`${API_URL}/cart`, {
+export const addToCart = async (productId, username) => {
+  const res = await fetch(`${API_URL}/cart`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: userId, ...item }),
-  }).then(res => res.json());
+    body: JSON.stringify({
+      username: username,  
+      product_id: productId,
+      quantity: 1           
+    }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error || "Failed to add to cart");
+  }
+
+  return res.json();
+};
+
 
 export const updateCartItem = (id, quantity) =>
   fetch(`${API_URL}/cart/${id}`, {

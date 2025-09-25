@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { getProductById } from "../services/api";
+import { addToCart } from "../services/api";
+
 
 export default function ProductDetail({ addToCart }) {
   const { id } = useParams();
@@ -104,7 +106,7 @@ export default function ProductDetail({ addToCart }) {
           <button
             className="btn btn-primary"
             style={{ marginTop: "20px", padding: "10px 20px" }}
-            onClick={() => addToCart(product.id)}
+            onClick={() => addToCart(product.id, currentUser.username)}
             disabled={product.stock <= 0} // ✅ disable button
           >
             {product.stock > 0 ? "Add to Cart" : "Out of Stock"}

@@ -104,7 +104,7 @@ export default function ProductsPage({ user, onAddToCart }) {
               style={{ marginTop: "12px", width: "100%" }}
               onClick={() => {
                 if (!user) return toast.error("Please log in first");
-                onAddToCart(product.id);
+                addToCart(product.id, currentUser.username)
               }}
               disabled={product.stock <= 0}
             >
