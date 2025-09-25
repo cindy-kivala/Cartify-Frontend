@@ -1,117 +1,72 @@
-// src/pages/ProductForm.jsx
-import React, { useState } from "react";
+import React from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import toast from "react-hot-toast";
 
 export default function ProductForm() {
-  const [form, setForm] = useState({
+  const initialValues = {
     name: "",
     price: "",
     description: "",
     image_url: "",
     category: "",
     brand: ""
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const validationSchema = Yup.object({
+    name: Yup.string().required("Product name is required"),
+    price: Yup.number().typeError("Price must be a number").positive("Price must be positive").required("Price is required"),
+    description: Yup.string(),
+    image_url: Yup.string().url("Invalid URL format"),
+    category: Yup.string(),
+    brand: Yup.string()
+  });
 
-    // Validation
-    if (!form.name || !form.price) {
-      return toast.error("Name and price are required");
-    }
-
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       const res = await fetch("http://localhost:5000/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          price: parseFloat(form.price),
-          description: form.description,
-          image_url: form.image_url,
-          category: form.category,
-          brand: form.brand
-        })
+        body: JSON.stringify({ ...values, price: parseFloat(values.price) })
       });
 
       if (!res.ok) throw new Error("Failed to create product");
 
       const newProduct = await res.json();
       toast.success(`Product "${newProduct.name}" added successfully!`);
-
-      // Reset form
-      setForm({
-        name: "",
-        price: "",
-        description: "",
-        image_url: "",
-        category: "",
-        brand: ""
-      });
+      resetForm();
     } catch (err) {
       console.error(err);
       toast.error("Failed to add product");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
     <div className="page-container" style={{ padding: "24px", maxWidth: "600px", margin: "0 auto" }}>
       <h1 className="page-title glow">Add New Product</h1>
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: "16px" }}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Product Name"
-          value={form.name}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          value={form.price}
-          onChange={handleChange}
-          step="0.01"
-          required
-        />
-        <input
-          type="text"
-          name="description"
-          placeholder="Description"
-          value={form.description}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="image_url"
-          placeholder="Image URL"
-          value={form.image_url}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="category"
-          placeholder="Category"
-          value={form.category}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="brand"
-          placeholder="Brand"
-          value={form.brand}
-          onChange={handleChange}
-        />
-        <button type="submit" className="btn btn-primary" style={{ marginTop: "12px" }}>
-          Add Product
-        </button>
-      </form>
+      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
+        {({ isSubmitting }) => (
+          <Form style={{ display: "grid", gap: "16px" }}>
+            <Field type="text" name="name" placeholder="Product Name" />
+            <ErrorMessage name="name" component="div" className="error-msg" />
+            <Field type="number" name="price" placeholder="Price" step="0.01" />
+            <ErrorMessage name="price" component="div" className="error-msg" />
+            <Field type="text" name="description" placeholder="Description" />
+            <ErrorMessage name="description" component="div" className="error-msg" />
+            <Field type="text" name="image_url" placeholder="Image URL" />
+            <ErrorMessage name="image_url" component="div" className="error-msg" />
+            <Field type="text" name="category" placeholder="Category" />
+            <ErrorMessage name="category" component="div" className="error-msg" />
+            <Field type="text" name="brand" placeholder="Brand" />
+            <ErrorMessage name="brand" component="div" className="error-msg" />
+            <button type="submit" className="btn btn-primary" style={{ marginTop: "12px" }} disabled={isSubmitting}>
+              {isSubmitting ? "Adding..." : "Add Product"}
+            </button>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 }
