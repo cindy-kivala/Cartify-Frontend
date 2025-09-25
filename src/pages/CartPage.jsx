@@ -133,5 +133,6 @@ export default function CartPage({ user }) {
         </div>
       )}
     </div>
+
   );
 }
