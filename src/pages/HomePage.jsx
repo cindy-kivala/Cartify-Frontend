@@ -60,7 +60,7 @@ export default function HomePage({ user, handleAddToCart }) {
               style={{ marginTop: "12px", width: "100%" }}
               onClick={() => {
                 if (!user) return toast.error("Please log in first");
-                onAddToCart(product.id);
+                handleAddToCart(product.id);
               }}
               disabled={product.stock <= 0}
             >
