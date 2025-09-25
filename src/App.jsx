@@ -15,6 +15,7 @@ import ProductDetail from "./pages/ProductDetail";
 
 function App() {
   const [user, setUser] = useState(null);
+  const [cart, setCart] = useState([]);
 
   const handleLogout = () => setUser(null);
 
