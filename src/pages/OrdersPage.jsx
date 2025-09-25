@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import  { getOrders, deleteOrderById } from "../services/api";
+import  { getOrders, deleteOrderById, API_URL  } from "../services/api";
 
 export default function Orders({ user }) {
   const [orders, setOrders] = useState([]);

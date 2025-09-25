@@ -1,9 +1,8 @@
 // src/pages/ProductDetail.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import toast from "react-hot-toast";
-import { getProductById, addCartItem } from "../services/api";
+import { getProductById } from "../services/api";
 
 export default function ProductDetail({ addToCart }) {
   const { id } = useParams();
@@ -13,8 +12,8 @@ export default function ProductDetail({ addToCart }) {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const data = await getProductById(id);
-        setProduct(data);
+        const res = await getProductById(id);
+        setProduct(res);
       } catch (err) {
         console.error(err);
         toast.error("Failed to fetch product details");
@@ -28,12 +27,6 @@ export default function ProductDetail({ addToCart }) {
   if (loading) return <h2 className="glow">Loading product...</h2>;
   if (!product) return <h2 className="glow">Product not found</h2>;
 
-  const handleAddToCart = () => {
-    if (addToCart) {
-      addToCart(product.id);
-      toast.success("Added to cart");
-    }
-  };
 
   return (
     <div className="page-container" style={{ padding: "24px" }}>
