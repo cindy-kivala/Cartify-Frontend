@@ -4,9 +4,7 @@ import toast from "react-hot-toast";
 
 export default function CartPage({ user }) {
   const [cart, setCart] = useState([]);
-  const userId = 1; // example user
 
-  // Fetch cart items for the user
   useEffect(() => {
     if (!user) return;
     fetchCart();
@@ -135,5 +133,6 @@ export default function CartPage({ user }) {
         </div>
       )}
     </div>
+
   );
 }

@@ -109,6 +109,14 @@ export default function HomePage({ user, onAddToCart }) {
           </div>
         ))}
       </div>
+
+      {/* Simple keyframes animation */}
+      <style>{`
+        @keyframes fadeIn {
+          0% { opacity: 0; transform: translateY(-20px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
