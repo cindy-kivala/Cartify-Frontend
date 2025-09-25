@@ -1,36 +1,110 @@
-import { useState, useEffect } from "react";
+// src/pages/HomePage.jsx
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { Link } from "react-router-dom";
 
-function HomePage() {
+export default function HomePage({ user, onAddToCart }) {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/products")
-      .then((r) => r.json())
-      .then(setProducts)
-      .catch((err) => console.error(err));
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/products");
+        setProducts(res.data);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to fetch products");
+      }
+    };
+    fetchProducts();
   }, []);
 
-  const addToCart = (product) => {
-    fetch("http://localhost:5000/cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product_id: product.id, quantity: 1 }),
-    })
-      .then((res) => res.json())
-      .then((data) => console.log("Added to cart:", data))
-      .catch((err) => console.error(err));
-  };
-
   return (
-    <div className="products-page">
-      <h1 className="page-title">Home - Products</h1>
-      <div className="products-grid">
-        {products.map((p) => (
-          <div key={p.id} className="product-card">
-            <h2 className="product-name">{p.name}</h2>
-            <p className="product-price">${p.price}</p>
-            <button onClick={() => addToCart(p)} className="btn-secondary">
-              Add to Cart
+    <div className="page-container" style={{ padding: "24px" }}>
+      <h1 className="page-title glow">Products</h1>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+          gap: "20px",
+        }}
+      >
+        {products.map((product) => (
+          <div
+            key={product.id}
+            className="product-card"
+            style={{
+              background: "#1e1e2f",
+              padding: "16px",
+              borderRadius: "12px",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+              transition: "transform 0.2s ease",
+              textAlign: "center",
+            }}
+          >
+            <Link
+              to={`/products/${product.id}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <img
+                src={product.image_url}
+                alt={product.name}
+                style={{
+                  width: "100%",
+                  height: "180px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                  marginBottom: "10px",
+                }}
+              />
+              <h2 className="product-name glow">{product.name}</h2>
+              <p className="product-price glow">${product.price.toFixed(2)}</p>
+
+              {product.description && (
+                <p
+                  style={{
+                    fontSize: "0.9rem",
+                    color: "#ddd",
+                    margin: "8px 0",
+                  }}
+                >
+                  {product.description}
+                </p>
+              )}
+              {product.category && (
+                <p style={{ fontSize: "0.85rem", color: "#bbb" }}>
+                  <strong>Category:</strong> {product.category}
+                </p>
+              )}
+              {product.brand && (
+                <p style={{ fontSize: "0.85rem", color: "#bbb" }}>
+                  <strong>Brand:</strong> {product.brand}
+                </p>
+              )}
+
+              {product.stock !== undefined && (
+                <p
+                  style={{
+                    fontSize: "0.85rem",
+                    color: product.stock > 0 ? "#0f0" : "#f00",
+                  }}
+                >
+                  {product.stock > 0 ? `In stock: ${product.stock}` : "Out of stock"}
+                </p>
+              )}
+            </Link>
+
+            <button
+              className="btn btn-primary"
+              style={{ marginTop: "12px", width: "100%" }}
+              onClick={() => {
+                if (!user) return toast.error("Please log in first");
+                onAddToCart(product.id);
+              }}
+              disabled={product.stock <= 0}
+            >
+              {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
             </button>
           </div>
         ))}
@@ -38,5 +112,3 @@ function HomePage() {
     </div>
   );
 }
-
-export default HomePage;
