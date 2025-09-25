@@ -9,7 +9,7 @@ import {
   checkoutCart 
 } from "../services/api";
 
-export default function CartPage({ user }) {
+export default function CartPage({ user, cart, setCart }) {
   const [cart, setCart] = useState([]);
 
   // Fetch cart items on mount or when user changes

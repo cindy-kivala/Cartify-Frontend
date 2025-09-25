@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Toaster } from "react-hot-toast";
+import { getCartItems, addCartItem, updateCartItem, deleteCartItem, checkoutCart } from "./services/api";
 
 import NavBar from "./components/NavBar";
 import HomePage from "./pages/HomePage";
@@ -18,6 +19,24 @@ function App() {
   const [cart, setCart] = useState([]);
 
   const handleLogout = () => setUser(null);
+
+  //fetch cart
+  useEffect(() => {
+    if (!user) return;
+    fetchCart();
+  }, [user]);
+
+  const fetchCart = async () => {
+    try {
+      const res = await getCartItems(user.id);
+      setCart(res);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch cart");
+    }
+  };
+
+
 
   // ✅ unified handleAddToCart for both HomePage and ProductsPage
   const handleAddToCart = async (productId, quantity = 1) => {
@@ -50,7 +69,7 @@ function App() {
       <Routes>
         {/* ✅ Pass handleAddToCart to HomePage */}
         <Route path="/" element={<HomePage user={user} handleAddToCart={handleAddToCart} />} />
-        <Route path="/cart" element={<CartPage user={user} />} />
+        <Route path="/cart" element={<CartPage user={user} cart={cart} setCart={setCart}/>} />
         <Route path="/orders" element={<OrdersPage user={user} />} />
         <Route path="/login" element={<LoginPage onLogin={setUser} />} />
         <Route path="/signup" element={<SignupPage onLogin={setUser} />} />
