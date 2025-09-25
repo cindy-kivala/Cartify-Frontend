@@ -1,50 +1,33 @@
+// src/pages/Login.jsx
 import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-function LoginPage() {
-  const [form, setForm] = useState({ username: "", password: "" });
+export default function Login({ onLogin }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    fetch("http://localhost:5000/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    })
-      .then((res) => res.json())
-      .then((user) => console.log("Logged in user:", user))
-      .catch((err) => console.error("Login error:", err));
+    try {
+      const res = await axios.post("http://localhost:5000/login", { username, password });
+      onLogin(res.data);
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      alert("Invalid credentials");
+    }
   };
 
   return (
-    <div className="login-page">
+    <div className="page-container" style={{ padding: "24px", maxWidth: "400px", margin: "auto" }}>
       <h1 className="page-title">Login</h1>
-      <form onSubmit={handleSubmit} className="login-form">
-        <input
-          type="text"
-          name="username"
-          value={form.username}
-          onChange={handleChange}
-          placeholder="Username"
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-          placeholder="Password"
-          required
-        />
-        <button type="submit" className="btn-primary">
-          Login
-        </button>
+      <form className="product-form" onSubmit={handleSubmit}>
+        <input className="form-input" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} />
+        <input className="form-input" placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+        <button type="submit" className="btn btn-primary">Login</button>
       </form>
     </div>
   );
 }
-
-export default LoginPage;

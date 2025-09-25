@@ -1,106 +1,77 @@
-// src/App.jsx
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import ProductsPage from "./pages/ProductPage";
-import OrdersPage from "./pages/OrdersPage";
+import React, { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
+import NavBar from "./components/NavBar";
 import HomePage from "./pages/HomePage";
 import CartPage from "./pages/CartPage";
-import CheckoutPage from "./pages/CheckoutPage";
+import OrdersPage from "./pages/OrdersPage";
 import LoginPage from "./pages/LoginPage";
-
-
-function Navbar() {
-  return (
-    <nav className="navbar">
-      <h1 className="navbar-logo">E-Commerce</h1>
-      <div className="navbar-links">
-        <Link to="/" className="nav-link">
-        Home
-        </Link>
-        <Link to="/products" className="nav-link">
-          Products
-        </Link>
-        <Link to="/orders" className="nav-link">
-          Orders
-        </Link>
-        <Link to="/cart" className="nav-link">
-          Cart ({cartCount})
-        </Link>
-        <Link to="/checkout" className="nav-link">
-        Checkout
-        </Link>
-        <Link to="/login" className="nav-link">
-        Login
-        </Link>
-      </div>
-    </nav>
-  );
-}
+import SignupPage from "./pages/SignupPage";
+import ProductForm from "./pages/ProductForm";
+import ProductsPage from "./pages/ProductsPage";
+import ProductDetail from "./pages/ProductDetail";
 
 function App() {
-   const [cart, setCart] = useState([]);
+  const [user, setUser] = useState(null);
 
-  // CREATE: add product to cart
-  const addToCart = (product) => {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
-      if (existing) {
-        // update quantity if already in cart
-        return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
+  const handleLogout = () => setUser(null);
+
+  // ✅ unified handleAddToCart for both HomePage and ProductsPage
+  const handleAddToCart = async (productId) => {
+    if (!user) return toast.error("Please log in first");
+
+    try {
+      const res = await fetch("http://localhost:5000/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: user.username,
+          product_id: productId,
+          quantity: 1,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to add to cart");
       }
-      return [...prev, { ...product, quantity: 1 }];
-    });
-  };
 
-  // UPDATE: change quantity
-  const updateQuantity = (id, quantity) => {
-    setCart((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: Number(quantity) } : item
-      )
-    );
+      toast.success("Added to cart!");
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      toast.error(err.message || "Failed to add to cart");
+    }
   };
-
-  // DELETE: remove item
-  const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-  };
-
 
   return (
-    <Router>
-      <div className="app-container">
-        <Navbar cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route
-              path="/products"
-              element={<ProductsPage addToCart={addToCart} />}
-            />
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route
-              path="/cart"
-              element={
-                <CartPage
-                  cart={cart}
-                  updateQuantity={updateQuantity}
-                  removeFromCart={removeFromCart}
-                />
-              }
-            />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/login" element={<LoginPage />} />
-          </Routes>
-        </main>
-        <footer className="footer">
-          <p>&copy; 2025 E-Commerce App</p>
-        </footer>
-      </div>
-    </Router>
+    <BrowserRouter>
+      <NavBar user={user} onLogout={handleLogout} />
+      <Routes>
+        {/* ✅ Pass handleAddToCart to HomePage */}
+        <Route path="/" element={<HomePage user={user} onAddToCart={handleAddToCart} />} />
+        <Route path="/cart" element={<CartPage user={user} />} />
+        <Route path="/orders" element={<OrdersPage user={user} />} />
+        <Route path="/login" element={<LoginPage onLogin={setUser} />} />
+        <Route path="/signup" element={<SignupPage onLogin={setUser} />} />
+
+        {/* Products listing & detail routes */}
+        <Route
+          path="/products"
+          element={<ProductsPage onAddToCart={handleAddToCart} />}
+        />
+        <Route
+          path="/products/:id"
+          element={<ProductDetail addToCart={handleAddToCart} />}
+        />
+
+        {/* Add Product route */}
+        <Route path="/add-product" element={<ProductForm />} />
+      </Routes>
+
+      <Toaster position="top-right" />
+    </BrowserRouter>
   );
 }
 
