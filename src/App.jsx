@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 import NavBar from "./components/NavBar";
 import HomePage from "./pages/HomePage";
