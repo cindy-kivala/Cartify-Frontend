@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { getProducts } from "../services/api";
 
-export default function HomePage({ user, onAddToCart }) {
+
+export default function HomePage({ user, handleAddToCart }) {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -60,7 +61,7 @@ export default function HomePage({ user, onAddToCart }) {
               style={{ marginTop: "12px", width: "100%" }}
               onClick={() => {
                 if (!user) return toast.error("Please log in first");
-                onAddToCart(product.id);
+                handleAddToCart(product.id);
               }}
               disabled={product.stock <= 0}
             >

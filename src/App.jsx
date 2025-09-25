@@ -49,7 +49,7 @@ function App() {
       <NavBar user={user} onLogout={handleLogout} />
       <Routes>
         {/* ✅ Pass handleAddToCart to HomePage */}
-        <Route path="/" element={<HomePage user={user} onAddToCart={handleAddToCart} />} />
+        <Route path="/" element={<HomePage user={user} handleAddToCart={handleAddToCart} />} />
         <Route path="/cart" element={<CartPage user={user} />} />
         <Route path="/orders" element={<OrdersPage user={user} />} />
         <Route path="/login" element={<LoginPage onLogin={setUser} />} />
