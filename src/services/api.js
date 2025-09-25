@@ -45,7 +45,7 @@ export const signupUser = (data) =>
 export const getCartItems = (username) =>
   fetch(`${API_URL}/cart/${username}`).then(res => res.json());
 
-export const addToCart = async (productId, username) => {
+export const addCartItem = async (productId, username) => {
   const res = await fetch(`${API_URL}/cart`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
