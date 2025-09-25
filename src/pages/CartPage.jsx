@@ -12,7 +12,7 @@ export default function CartPage({ user }) {
 
   const fetchCart = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/cart/${user.username}`);
+      const res = await axios.get(`${API_URL}/cart/${user.username}`);
       setCart(res.data);
     } catch (err) {
       console.error(err);
@@ -22,7 +22,7 @@ export default function CartPage({ user }) {
 
   const removeItem = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/cart/${id}`);
+      await axios.delete(`${API_URL}/cart/${id}`);
       setCart((prev) => prev.filter((item) => item.id !== id));
       toast.success("Item removed from cart");
     } catch (err) {
@@ -33,7 +33,7 @@ export default function CartPage({ user }) {
 
   const updateQuantity = async (id, newQuantity) => {
     try {
-      const res = await fetch(`http://localhost:5000/cart/${id}`, {
+      const res = await fetch(`${API_URL}/cart/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantity: newQuantity }),
@@ -56,7 +56,7 @@ export default function CartPage({ user }) {
 
     try {
       // ✅ Call the new checkout endpoint
-      await axios.post(`http://localhost:5000/checkout/${user.username}`);
+      await axios.post(`${API_URL}/checkout/${user.username}`);
 
       // ✅ Clear frontend cart after successful checkout
       setCart([]);

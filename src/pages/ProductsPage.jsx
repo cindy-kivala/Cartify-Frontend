@@ -10,7 +10,7 @@ export default function ProductsPage({ user, onAddToCart }) {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/products");
+        const res = await axios.get(`${API_URL}/products`);
         setProducts(res.data);
       } catch (err) {
         console.error(err);

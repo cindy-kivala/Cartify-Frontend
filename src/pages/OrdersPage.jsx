@@ -12,7 +12,7 @@ export default function Orders({ user }) {
 
   const fetchOrders = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/orders/${user.username}`);
+      const res = await axios.get(`${API_URL}/orders/${user.username}`);
       setOrders(res.data);
     } catch (err) {
       console.error(err);
@@ -22,7 +22,7 @@ export default function Orders({ user }) {
 
   const deleteOrder = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/orders/${id}`);
+      await axios.delete(`${API_URL}/orders/${id}`);
       setOrders(prev => prev.filter(order => order.id !== id));
       toast.success("Order deleted successfully!");
     } catch (err) {

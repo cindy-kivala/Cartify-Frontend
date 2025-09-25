@@ -16,7 +16,7 @@ export default function Signup({ onLogin }) {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const res = await axios.post("http://localhost:5000/signup", values);
+      const res = await axios.post(`${API_URL}/signup`, values);
       onLogin(res.data);
       toast.success("Signup successful!");
       navigate("/");

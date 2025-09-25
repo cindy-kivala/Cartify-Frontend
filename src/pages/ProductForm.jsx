@@ -24,7 +24,7 @@ export default function ProductForm() {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      const res = await fetch("http://localhost:5000/products", {
+      const res = await fetch(`${API_URL}/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...values, price: parseFloat(values.price) })

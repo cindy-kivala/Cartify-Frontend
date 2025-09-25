@@ -14,7 +14,7 @@ export default function Login({ onLogin }) {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const res = await axios.post("http://localhost:5000/login", values);
+      const res = await axios.post(`${API_URL}/login`, values);
       onLogin(res.data);
       navigate("/");
     } catch (err) {

@@ -22,7 +22,7 @@ function App() {
     if (!user) return toast.error("Please log in first");
 
     try {
-      const res = await fetch("http://localhost:5000/cart", {
+      const res = await fetch(`${API_URL}/cart`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
