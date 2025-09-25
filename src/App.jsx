@@ -69,7 +69,7 @@ function App() {
       <Routes>
         {/* ✅ Pass handleAddToCart to HomePage */}
         <Route path="/" element={<HomePage user={user} handleAddToCart={handleAddToCart} />} />
-        <Route path="/cart" element={<CartPage user={user} cart={cart} setCart={setCart}/>} />
+        <Route path="/cart" element={<CartPage user={user} />} />
         <Route path="/orders" element={<OrdersPage user={user} />} />
         <Route path="/login" element={<LoginPage onLogin={setUser} />} />
         <Route path="/signup" element={<SignupPage onLogin={setUser} />} />

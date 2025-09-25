@@ -9,7 +9,8 @@ import {
   checkoutCart 
 } from "../services/api";
 
-export default function CartPage({ user, cart, setCart }) {
+export default function CartPage({ user }) {
+  const [cart, setCart] = useState([]);
   
   // Fetch cart items on mount or when user changes
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function CartPage({ user, cart, setCart }) {
         toast.success("Updated quantity in cart!");
       } else {
         // Add new item if it doesn't exist
-        const newItem = await addCartItem(user.id, { product_id: productId, quantity });
+        const newItem = await addCartItem(user.username, { product_id: productId, quantity });
         setCart(prev => [...prev, newItem]);
         toast.success("Added to cart!");
       }
@@ -82,7 +83,7 @@ export default function CartPage({ user, cart, setCart }) {
     if (cart.length === 0) return toast.error("Cart is empty");
 
     try {
-      await checkoutCart(user.id);
+      await checkoutCart(user.username);
       setCart([]);
       toast.success("Checkout successful! Your order has been placed.");
     } catch (err) {

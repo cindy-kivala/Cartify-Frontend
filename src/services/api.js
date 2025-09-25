@@ -42,14 +42,14 @@ export const signupUser = (data) =>
   }).then(res => res.json());
 
 // -------------------- Cart --------------------
-export const getCartItems = (userId) =>
-  fetch(`${API_URL}/cart/${userId}`).then(res => res.json());
+export const getCartItems = (username) =>
+  fetch(`${API_URL}/cart/${username}`).then(res => res.json());
 
 export const addCartItem = (userId, item) =>
-  fetch(`${API_URL}/cart/${userId}`, {
+  fetch(`${API_URL}/cart`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(item),
+    body: JSON.stringify({ username: userId, ...item }),
   }).then(res => res.json());
 
 export const updateCartItem = (id, quantity) =>
@@ -60,14 +60,12 @@ export const updateCartItem = (id, quantity) =>
   }).then(res => res.json());
 
 export const deleteCartItem = (id) =>
-  fetch(`${API_URL}/cart/${id}`, {
-    method: "DELETE",
-  }).then(res => res.json());
+  fetch(`${API_URL}/cart/${id}`, { method: "DELETE" })
+    .then(res => res.json());
 
-export const checkoutCart = (userId) =>
-  fetch(`${API_URL}/checkout/${userId}`, {
-    method: "POST",
-  }).then(res => res.json());
+export const checkoutCart = (username) =>
+  fetch(`${API_URL}/checkout/${username}`, { method: "POST" })
+    .then(res => res.json());
 
 // -------------------- Orders --------------------
 export const getOrders = (username) =>
