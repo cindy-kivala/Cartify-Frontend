@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
+import { loginUser } from "../services/api";
 
 export default function Login({ onLogin }) {
   const navigate = useNavigate();
@@ -14,12 +15,13 @@ export default function Login({ onLogin }) {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const res = await axios.post(`${API_URL}/login`, values);
-      onLogin(res.data);
+      const user = await loginUser(values);
+      onLogin(user);
+      toast.success(`Welcome back, ${user.username}!`);
       navigate("/");
     } catch (err) {
       console.error(err);
-      alert("Invalid credentials");
+      toast.error("Invalid credentials");
     } finally {
       setSubmitting(false);
     }

@@ -2,6 +2,7 @@ import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import toast from "react-hot-toast";
+import { createProduct } from "../services/api";
 
 export default function ProductForm() {
   const initialValues = {
@@ -24,15 +25,7 @@ export default function ProductForm() {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      const res = await fetch(`${API_URL}/products`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...values, price: parseFloat(values.price) })
-      });
-
-      if (!res.ok) throw new Error("Failed to create product");
-
-      const newProduct = await res.json();
+      const newProduct = await createProduct({ ...values, price: parseFloat(values.price) });
       toast.success(`Product "${newProduct.name}" added successfully!`);
       resetForm();
     } catch (err) {
@@ -46,7 +39,11 @@ export default function ProductForm() {
   return (
     <div className="page-container" style={{ padding: "24px", maxWidth: "600px", margin: "0 auto" }}>
       <h1 className="page-title glow">Add New Product</h1>
-      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
+      <Formik 
+         initialValues={initialValues} 
+         validationSchema={validationSchema} 
+         onSubmit={handleSubmit}
+      >
         {({ isSubmitting }) => (
           <Form style={{ display: "grid", gap: "16px" }}>
             <Field type="text" name="name" placeholder="Product Name" />
@@ -61,7 +58,12 @@ export default function ProductForm() {
             <ErrorMessage name="category" component="div" className="error-msg" />
             <Field type="text" name="brand" placeholder="Brand" />
             <ErrorMessage name="brand" component="div" className="error-msg" />
-            <button type="submit" className="btn btn-primary" style={{ marginTop: "12px" }} disabled={isSubmitting}>
+            <button 
+               type="submit" 
+               className="btn btn-primary" 
+               style={{ marginTop: "12px" }} 
+               disabled={isSubmitting}
+            >
               {isSubmitting ? "Adding..." : "Add Product"}
             </button>
           </Form>

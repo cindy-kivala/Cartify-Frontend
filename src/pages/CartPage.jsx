@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { getCartItems, addCartItem, updateCartItem, deleteCartItem, checkoutCart } from "../services/api";
 
 export default function CartPage({ user }) {
   const [cart, setCart] = useState([]);
@@ -12,8 +13,8 @@ export default function CartPage({ user }) {
 
   const fetchCart = async () => {
     try {
-      const res = await axios.get(`${API_URL}/cart/${user.username}`);
-      setCart(res.data);
+      const items = await getCartItems(user.id);
+      setCart(items);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch cart");
@@ -22,7 +23,7 @@ export default function CartPage({ user }) {
 
   const removeItem = async (id) => {
     try {
-      await axios.delete(`${API_URL}/cart/${id}`);
+      await deleteCartItem(id);
       setCart((prev) => prev.filter((item) => item.id !== id));
       toast.success("Item removed from cart");
     } catch (err) {
@@ -33,16 +34,8 @@ export default function CartPage({ user }) {
 
   const updateQuantity = async (id, newQuantity) => {
     try {
-      const res = await fetch(`${API_URL}/cart/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quantity: newQuantity }),
-      });
-      if (!res.ok) throw new Error("Failed to update quantity");
-      const updatedItem = await res.json();
-      setCart((prev) =>
-        prev.map((item) => (item.id === id ? updatedItem : item))
-      );
+      const updatedItem = await updateCartItem(id, { quantity: newQuantity });
+      setCart((prev) => prev.map((item) => (item.id === id ? updatedItem : item)));
       toast.success("Quantity updated");
     } catch (err) {
       console.error(err);
@@ -55,19 +48,12 @@ export default function CartPage({ user }) {
     if (cart.length === 0) return toast.error("Cart is empty");
 
     try {
-      // ✅ Call the new checkout endpoint
-      await axios.post(`${API_URL}/checkout/${user.username}`);
-
-      // ✅ Clear frontend cart after successful checkout
+      await checkoutCart(user.id);
       setCart([]);
       toast.success("Checkout successful! Your order has been placed.");
     } catch (err) {
       console.error(err);
-      if (err.response?.data?.error) {
-        toast.error(err.response.data.error);
-      } else {
-        toast.error("Checkout failed");
-      }
+      toast.error("Checkout failed");
     }
   };
 

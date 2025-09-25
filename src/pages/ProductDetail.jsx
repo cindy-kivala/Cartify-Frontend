@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { getProductById, addCartItem } from "../services/api";
 
 export default function ProductDetail({ addToCart }) {
   const { id } = useParams();
@@ -12,8 +13,8 @@ export default function ProductDetail({ addToCart }) {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`${API_URL}/products/${id}`);
-        setProduct(res.data);
+        const data = await getProductById(id);
+        setProduct(data);
       } catch (err) {
         console.error(err);
         toast.error("Failed to fetch product details");
