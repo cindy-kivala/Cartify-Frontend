@@ -2,16 +2,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import axios from "axios";
+import { getProducts, addCartItem } from "../api";
 
-export default function ProductsPage({ user, onAddToCart }) {
+export default function ProductsPage({ user }) {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/products");
-        setProducts(res.data);
+        const data = await getProducts();
+        setProducts(data);
       } catch (err) {
         console.error(err);
         toast.error("Failed to fetch products");
@@ -19,6 +19,28 @@ export default function ProductsPage({ user, onAddToCart }) {
     };
     fetchProducts();
   }, []);
+
+  const handleAddToCart = async (productId) => {
+    if (!user) return toast.error("Please log in first");
+
+    try {
+      const res = await addCartItem({
+        username: user.username,
+        product_id: productId,
+        quantity: 1,
+      });
+
+      if (res.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("Added to cart");
+        // Optionally, update local state to reflect new cart item count
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to add to cart");
+    }
+  };
 
   return (
     <div className="page-container" style={{ padding: "24px" }}>
@@ -82,7 +104,6 @@ export default function ProductsPage({ user, onAddToCart }) {
                   <strong>Brand:</strong> {product.brand}
                 </p>
               )}
-
               {product.stock !== undefined && (
                 <p
                   style={{
@@ -90,7 +111,9 @@ export default function ProductsPage({ user, onAddToCart }) {
                     color: product.stock > 0 ? "#0f0" : "#f00",
                   }}
                 >
-                  {product.stock > 0 ? `In stock: ${product.stock}` : "Out of stock"}
+                  {product.stock > 0
+                    ? `In stock: ${product.stock}`
+                    : "Out of stock"}
                 </p>
               )}
             </Link>
@@ -98,10 +121,7 @@ export default function ProductsPage({ user, onAddToCart }) {
             <button
               className="btn btn-primary"
               style={{ marginTop: "12px", width: "100%" }}
-              onClick={() => {
-                if (!user) return toast.error("Please log in first");
-                onAddToCart(product.id);
-              }}
+              onClick={() => handleAddToCart(product.id)}
               disabled={product.stock <= 0}
             >
               {product.stock > 0 ? "Add to Cart" : "Out of Stock"}

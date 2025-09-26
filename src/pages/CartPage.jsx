@@ -1,6 +1,7 @@
+// src/pages/CartPage.jsx
 import { useEffect, useState } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
+import { getCartItems, addCartItem, updateCartItem, removeCartItem, checkoutCart } from "../api";
 
 export default function CartPage({ user }) {
   const [cart, setCart] = useState([]);
@@ -12,8 +13,8 @@ export default function CartPage({ user }) {
 
   const fetchCart = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/cart/${user.username}`);
-      setCart(res.data);
+      const data = await getCartItems(user.username);
+      setCart(data);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch cart");
@@ -22,31 +23,29 @@ export default function CartPage({ user }) {
 
   const removeItem = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/cart/${id}`);
+      const res = await removeCartItem(id);
+      if (res.error) throw new Error(res.error);
+
       setCart((prev) => prev.filter((item) => item.id !== id));
       toast.success("Item removed from cart");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to remove item");
+      toast.error(err.message || "Failed to remove item");
     }
   };
 
   const updateQuantity = async (id, newQuantity) => {
     try {
-      const res = await fetch(`http://localhost:5000/cart/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quantity: newQuantity }),
-      });
-      if (!res.ok) throw new Error("Failed to update quantity");
-      const updatedItem = await res.json();
+      const updatedItem = await updateCartItem(id, { quantity: newQuantity });
+      if (updatedItem.error) throw new Error(updatedItem.error);
+
       setCart((prev) =>
         prev.map((item) => (item.id === id ? updatedItem : item))
       );
       toast.success("Quantity updated");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update quantity");
+      toast.error(err.message || "Failed to update quantity");
     }
   };
 
@@ -55,19 +54,12 @@ export default function CartPage({ user }) {
     if (cart.length === 0) return toast.error("Cart is empty");
 
     try {
-      // ✅ Call the new checkout endpoint
-      await axios.post(`http://localhost:5000/checkout/${user.username}`);
-
-      // ✅ Clear frontend cart after successful checkout
+      await checkoutCart(user.username);
       setCart([]);
       toast.success("Checkout successful! Your order has been placed.");
     } catch (err) {
       console.error(err);
-      if (err.response?.data?.error) {
-        toast.error(err.response.data.error);
-      } else {
-        toast.error("Checkout failed");
-      }
+      toast.error(err?.error || "Checkout failed");
     }
   };
 
@@ -94,7 +86,7 @@ export default function CartPage({ user }) {
               )}
               <h2 className="product-name glow">{item.product_name}</h2>
               <p className="product-price glow">
-                {item.price} × {item.quantity}
+                ${item.price} × {item.quantity}
               </p>
 
               <div style={{ display: "flex", gap: "8px", margin: "10px 0" }}>
@@ -133,6 +125,5 @@ export default function CartPage({ user }) {
         </div>
       )}
     </div>
-
   );
 }

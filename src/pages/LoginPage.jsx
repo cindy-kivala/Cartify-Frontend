@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import axios from "axios";
+import toast from "react-hot-toast";
+import { loginUser } from "../api"; //use api.js helper
 
 export default function Login({ onLogin }) {
   const navigate = useNavigate();
@@ -14,12 +15,13 @@ export default function Login({ onLogin }) {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const res = await axios.post("http://localhost:5000/login", values);
-      onLogin(res.data);
+      const data = await loginUser(values); // api call
+      onLogin(data);
+      toast.success(`Welcome back, ${data.username}!`);
       navigate("/");
     } catch (err) {
       console.error(err);
-      alert("Invalid credentials");
+      toast.error(err.message || "Invalid credentials");
     } finally {
       setSubmitting(false);
     }
