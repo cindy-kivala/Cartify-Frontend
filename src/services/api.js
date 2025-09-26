@@ -1,20 +1,22 @@
 export const API_URL = import.meta.env.VITE_API_URL;
 
-// Helper: fetch wrapper with JSON + error handling
-async function fetchJSON(url, options = {}) {
+// Unified fetch helper
+async function fetchJSON(endpoint, options = {}) {
   try {
-    const res = await fetch(url, options);
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+      ...options,
+    });
+
     const text = await res.text();
     let data;
     try {
       data = text ? JSON.parse(text) : {};
     } catch {
-      data = { error: "Invalid JSON response" };
+      return { error: "Invalid JSON response" };
     }
 
-    if (!res.ok) {
-      return data.error ? { error: data.error } : { error: res.statusText || "Request failed" };
-    }
+    if (!res.ok) return { error: data.error || res.statusText };
     return data;
   } catch (err) {
     return { error: err.message || "Network error" };
@@ -22,69 +24,63 @@ async function fetchJSON(url, options = {}) {
 }
 
 // ---------------- PRODUCTS ----------------
-export const getProducts = () => fetchJSON(`${API_URL}/products`);
-export const getProductById = (id) => fetchJSON(`${API_URL}/products/${id}`);
+export const getProducts = () => fetchJSON(`/products`);
+export const getProductById = (id) => fetchJSON(`/products/${id}`);
 export const createProduct = (product) =>
-  fetchJSON(`${API_URL}/products`, {
+  fetchJSON(`/products`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(product),
   });
 
-// ---------------- AUTH / USERS ----------------
-export const getUsers = () => fetchJSON(`${API_URL}/users`);
+// ---------------- USERS / AUTH ----------------
+export const getUsers = () => fetchJSON(`/users`);
 export const createUser = (user) =>
-  fetchJSON(`${API_URL}/users`, {
+  fetchJSON(`/users`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(user),
   });
 
 export const signupUser = (user) =>
-  fetchJSON(`${API_URL}/signup`, {
+  fetchJSON(`/signup`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(user),
   });
 
 export const loginUser = (credentials) =>
-  fetchJSON(`${API_URL}/login`, {
+  fetchJSON(`/login`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials),
   });
 
 // ---------------- CART ----------------
-export const getCartItems = (username) => fetchJSON(`${API_URL}/cart/${username}`);
-export const addCartItem = (item) =>
-  fetchJSON(`${API_URL}/cart`, {
+export const getCartItems = (username) => fetchJSON(`/cart/${username}`);
+
+export const addCartItem = (userId, productId, quantity = 1) =>
+  fetchJSON(`/cart`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(item),
+    body: JSON.stringify({ user_id: userId, product_id: productId, quantity }),
   });
 
 export const updateCartItem = (itemId, quantity) =>
-  fetchJSON(`${API_URL}/cart/item/${itemId}`, {
+  fetchJSON(`/cart/item/${itemId}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ quantity }),
   });
 
 export const removeCartItem = (itemId) =>
-  fetchJSON(`${API_URL}/cart/item/${itemId}`, { method: "DELETE" });
+  fetchJSON(`/cart/item/${itemId}`, { method: "DELETE" });
 
 export const checkoutCart = (username) =>
-  fetchJSON(`${API_URL}/cart/checkout/${username}`, { method: "POST" });
+  fetchJSON(`/cart/checkout/${username}`, { method: "POST" });
 
 // ---------------- ORDERS ----------------
-export const getOrders = (username) => fetchJSON(`${API_URL}/orders/${username}`);
+export const getOrders = (username) => fetchJSON(`/orders/${username}`);
 export const createOrder = (order) =>
-  fetchJSON(`${API_URL}/orders`, {
+  fetchJSON(`/orders`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(order),
   });
 
-export const getOrderById = (orderId) => fetchJSON(`${API_URL}/orders/${orderId}`);
+export const getOrderById = (orderId) => fetchJSON(`/orders/${orderId}`);
 export const deleteOrder = (orderId) =>
-  fetchJSON(`${API_URL}/orders/${orderId}`, { method: "DELETE" });
+  fetchJSON(`/orders/${orderId}`, { method: "DELETE" });
