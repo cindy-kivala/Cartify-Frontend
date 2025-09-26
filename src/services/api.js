@@ -74,3 +74,11 @@ export const deleteOrder = (orderId) =>
   fetch(`${API_URL}/orders/${orderId}`, {
     method: "DELETE",
   }).then(res => res.json());
+
+  // ---------------- AUTH ----------------
+export const loginUser = (credentials) =>
+  fetch(`${API_URL}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  }).then(res => res.json());
