@@ -1,4 +1,4 @@
-// src/api.js
+// src/services/api.js
 export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 // ---------------- PRODUCTS ----------------
@@ -15,7 +15,7 @@ export const createProduct = (product) =>
     body: JSON.stringify(product),
   }).then(res => res.json());
 
-// ---------------- USERS ----------------
+// ---------------- AUTH / USERS ----------------
 export const getUsers = () =>
   fetch(`${API_URL}/users`).then(res => res.json());
 
@@ -26,8 +26,21 @@ export const createUser = (user) =>
     body: JSON.stringify(user),
   }).then(res => res.json());
 
+export const signupUser = (user) =>
+  fetch(`${API_URL}/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(user),
+  }).then(res => res.json());
+
+export const loginUser = (credentials) =>
+  fetch(`${API_URL}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  }).then(res => res.json());
+
 // ---------------- CART ----------------
-// username must match backend routes
 export const getCartItems = (username) =>
   fetch(`${API_URL}/cart/${username}`).then(res => res.json());
 
@@ -50,7 +63,6 @@ export const removeCartItem = (itemId) =>
     method: "DELETE",
   }).then(res => res.json());
 
-// ---------------- CHECKOUT ----------------
 export const checkoutCart = (username) =>
   fetch(`${API_URL}/checkout/${username}`, {
     method: "POST",
@@ -73,12 +85,4 @@ export const getOrderById = (orderId) =>
 export const deleteOrder = (orderId) =>
   fetch(`${API_URL}/orders/${orderId}`, {
     method: "DELETE",
-  }).then(res => res.json());
-
-  // ---------------- AUTH ----------------
-export const loginUser = (credentials) =>
-  fetch(`${API_URL}/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(credentials),
   }).then(res => res.json());
