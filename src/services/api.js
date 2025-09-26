@@ -1,6 +1,5 @@
 // src/api.js
-
-export const API_URL = import.meta.env.VITE_API_URL;
+export const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000";
 
 // -------------------- Products --------------------
 export const getProducts = () =>
@@ -20,26 +19,47 @@ export const createProduct = (product) =>
 export const getUsers = () =>
   fetch(`${API_URL}/users`).then(res => res.json());
 
-export const createUser = (user) =>
-  fetch(`${API_URL}/users`, {
+export const createUser = async (user) => {
+  const res = await fetch(`${API_URL}/users`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(user),
-  }).then(res => res.json());
+  });
+  return res.json(); // returns full user object
+};
 
-export const loginUser = (credentials) =>
-  fetch(`${API_URL}/login`, {
+// -------------------- Auth --------------------
+export const loginUser = async (credentials) => {
+  const res = await fetch(`${API_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials),
-  }).then(res => res.json());
+  });
 
-export const signupUser = (data) =>
-  fetch(`${API_URL}/signup`, {
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Login failed");
+  }
+
+  return data; // full user object { id, username, email, ... }
+};
+
+export const signupUser = async (data) => {
+  const res = await fetch(`${API_URL}/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
-  }).then(res => res.json());
+  });
+
+  const userData = await res.json();
+
+  if (!res.ok) {
+    throw new Error(userData.error || "Signup failed");
+  }
+
+  return userData; // full user object
+};
 
 // -------------------- Cart --------------------
 export const getCartItems = (username) =>
@@ -49,16 +69,12 @@ export const addToCart = async (productId, username) => {
   const res = await fetch(`${API_URL}/cart`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username,
-      product_id: productId,
-      quantity: 1,
-    }),
+    body: JSON.stringify({ username, product_id: productId, quantity: 1 }),
   });
 
   if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.error || "Failed to add to cart");
+    const data = await res.json();
+    throw new Error(data.error || "Failed to add to cart");
   }
 
   return res.json();
@@ -78,14 +94,12 @@ export const checkoutCart = (username) =>
   fetch(`${API_URL}/checkout/${username}`, { method: "POST" }).then(res => res.json());
 
 // -------------------- Orders --------------------
-// Fetch all orders for a given username
 export const getOrders = async (username) => {
   const res = await fetch(`${API_URL}/orders/${username}`);
   if (!res.ok) return []; // username not found
   return res.json();
 };
 
-// Create a new order
 export const createOrder = (order) =>
   fetch(`${API_URL}/orders`, {
     method: "POST",
@@ -93,8 +107,5 @@ export const createOrder = (order) =>
     body: JSON.stringify(order),
   }).then(res => res.json());
 
-// Delete an order by ID
 export const deleteOrderById = (orderId) =>
-  fetch(`${API_URL}/orders/${orderId}`, {
-    method: "DELETE",
-  }).then(res => res.json());
+  fetch(`${API_URL}/orders/${orderId}`, { method: "DELETE" }).then(res => res.json());

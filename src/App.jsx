@@ -20,12 +20,21 @@ import ProductsPage from "./pages/ProductsPage";
 import ProductDetail from "./pages/ProductDetail";
 
 function App() {
-  const [user, setUser] = useState(null);
+  // -------------------- User state --------------------
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem("user");
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  useEffect(() => {
+    if (user) localStorage.setItem("user", JSON.stringify(user));
+    else localStorage.removeItem("user");
+  }, [user]);
+
+  // -------------------- Cart state --------------------
   const [cart, setCart] = useState([]);
 
-  const handleLogout = () => setUser(null);
-
-  // fetch cart on login
+  // Fetch cart whenever user logs in
   useEffect(() => {
     if (!user) return;
     fetchCart();
@@ -41,7 +50,9 @@ function App() {
     }
   };
 
-  // ✅ unified add-to-cart logic
+  // -------------------- Handlers --------------------
+  const handleLogout = () => setUser(null);
+
   const handleAddToCart = async (productId, quantity = 1) => {
     if (!user) return toast.error("Please log in first");
 
@@ -70,6 +81,7 @@ function App() {
     }
   };
 
+  // -------------------- Render --------------------
   return (
     <BrowserRouter>
       <NavBar user={user} onLogout={handleLogout} />

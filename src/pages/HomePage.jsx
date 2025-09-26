@@ -4,19 +4,25 @@ import { getProducts, addToCart } from "../services/api";
 
 export default function HomePage({ user }) {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await getProducts();
-        setProducts(res);
+        const data = await getProducts();
+        setProducts(data);
       } catch (err) {
         console.error(err);
-        toast.error("Failed to fetch products");
+        toast.error(err.message || "Failed to fetch products");
+      } finally {
+        setLoading(false);
       }
     };
     fetchProducts();
   }, []);
+
+  if (loading) return <p>Loading products...</p>;
+  if (!products.length) return <p>No products available.</p>;
 
   return (
     <div className="page-container" style={{ padding: "24px" }}>
@@ -75,13 +81,15 @@ export default function HomePage({ user }) {
               className="btn btn-primary"
               style={{ marginTop: "12px", width: "100%" }}
               onClick={async () => {
-                if (!user) return toast.error("Please log in first");
+                if (!user?.username) return toast.error("Please log in first");
+                if (!product?.id) return toast.error("Invalid product");
+
                 try {
                   await addToCart(product.id, user.username);
                   toast.success("Added to cart!");
                 } catch (err) {
                   console.error(err);
-                  toast.error("Failed to add to cart");
+                  toast.error(err.message || "Failed to add to cart");
                 }
               }}
               disabled={product.stock <= 0}
