@@ -9,7 +9,7 @@ import {
 } from "../services/api";
 
 export default function CartPage({ user }) {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState({ items: [], total: 0, total_price: 0 });
 
   // Load cart on mount
   useEffect(() => {
@@ -20,7 +20,7 @@ export default function CartPage({ user }) {
   async function fetchCart() {
     const data = await getCartItems(user.username);
     if (data.error) return toast.error(data.error);
-    setCart(data);
+    setCart(data); // full object: {items, total, total_price}
   }
 
   async function handleAdd(productId) {
@@ -45,7 +45,7 @@ export default function CartPage({ user }) {
     const data = await checkoutCart(user.username);
     if (data.error) return toast.error(data.error);
     toast.success("Checkout successful!");
-    setCart([]);
+    setCart({ items: [], total: 0, total_price: 0 });
   }
 
   return (
@@ -53,26 +53,38 @@ export default function CartPage({ user }) {
       <h1>Your Cart</h1>
       {!user ? (
         <p>Please log in to view your cart.</p>
-      ) : cart.length === 0 ? (
+      ) : cart.items.length === 0 ? (
         <p>Your cart is empty.</p>
       ) : (
-        <ul>
-          {cart.map((item) => (
-            <li key={item.id}>
-              Product {item.product_id} - Quantity {item.quantity}
-              <button onClick={() => handleUpdate(item.id, item.quantity + 1)}>+</button>
-              <button
-                onClick={() => handleUpdate(item.id, item.quantity - 1)}
-                disabled={item.quantity <= 1}
-              >
-                -
-              </button>
-              <button onClick={() => handleRemove(item.id)}>Remove</button>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul>
+            {cart.items.map((item) => {
+              const itemTotal = (item.price * item.quantity).toFixed(2);
+              return (
+                <li key={item.id}>
+                  <strong>{item.product_name}</strong> (${item.price}) <br />
+                  Quantity: {item.quantity}{" "}
+                  <button onClick={() => handleUpdate(item.id, item.quantity + 1)}>+</button>
+                  <button
+                    onClick={() => handleUpdate(item.id, item.quantity - 1)}
+                    disabled={item.quantity <= 1}
+                  >
+                    -
+                  </button>
+                  <button onClick={() => handleRemove(item.id)}>Remove</button>
+                  <div>Subtotal: ${itemTotal}</div>
+                </li>
+              );
+            })}
+          </ul>
+          <hr />
+          <div>
+            <p><strong>Total Items:</strong> {cart.total}</p>
+            <p><strong>Total Price:</strong> ${cart.total_price.toFixed(2)}</p>
+          </div>
+        </>
       )}
-      {user && cart.length > 0 && (
+      {user && cart.items.length > 0 && (
         <button onClick={handleCheckout}>Checkout</button>
       )}
     </div>
