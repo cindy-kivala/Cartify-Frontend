@@ -64,7 +64,7 @@ export const removeCartItem = (itemId) =>
   }).then(res => res.json());
 
 export const checkoutCart = (username) =>
-  fetch(`${API_URL}/checkout/${username}`, {
+  fetch(`${API_URL}/cart/checkout/${username}`, {
     method: "POST",
   }).then(res => res.json());
 

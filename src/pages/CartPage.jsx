@@ -35,13 +35,18 @@ export default function CartPage({ user }) {
     }
   };
 
-  const updateQuantity = async (id, newQuantity) => {
+  // ---------------- UPDATE QUANTITY ----------------
+  const updateQuantity = async (itemId, newQuantity) => {
     try {
-      const updatedItem = await updateCartItem(id, { quantity: newQuantity });
+    // Find the current item in cart by id
+      const item = cart.find((i) => i.id === itemId);
+      if (!item) throw new Error("Cart item not found");
+
+      const updatedItem = await updateCartItem(itemId, newQuantity);
       if (updatedItem.error) throw new Error(updatedItem.error);
 
       setCart((prev) =>
-        prev.map((item) => (item.id === id ? updatedItem : item))
+        prev.map((cartItem) => (cartItem.id === itemId ? updatedItem : cartItem))
       );
       toast.success("Quantity updated");
     } catch (err) {
@@ -49,6 +54,7 @@ export default function CartPage({ user }) {
       toast.error(err.message || "Failed to update quantity");
     }
   };
+
 
   const checkout = async () => {
     if (!user) return toast.error("Please login first");
