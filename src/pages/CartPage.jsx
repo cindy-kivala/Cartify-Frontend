@@ -56,7 +56,7 @@ export default function CartPage({ user }) {
   };
 
 
-  const checkout = async () => {
+  const checkoutCart = async () => {
     if (!user) return toast.error("Please login first");
     if (cart.length === 0) return toast.error("Cart is empty");
 
