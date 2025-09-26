@@ -11,6 +11,7 @@ import {
 export default function CartPage({ user }) {
   const [cart, setCart] = useState([]);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const [loadingCart, setLoadingCart] = useState(true);
 
   useEffect(() => {
     if (!user) return;
@@ -18,11 +19,12 @@ export default function CartPage({ user }) {
   }, [user]);
 
   async function fetchCart() {
+    setLoadingCart(true);
     try {
       const data = await getCartItems(user.username);
       if (data.error) {
         toast.error(`Failed to load cart: ${data.error}`);
-        setCart([]); // avoid reduce errors
+        setCart([]);
         return;
       }
       setCart(Array.isArray(data.items) ? data.items : []);
@@ -30,6 +32,8 @@ export default function CartPage({ user }) {
       console.error(err);
       toast.error("Failed to load cart");
       setCart([]);
+    } finally {
+      setLoadingCart(false);
     }
   }
 
@@ -68,7 +72,6 @@ export default function CartPage({ user }) {
         toast.error(`Remove failed: ${res.error}`);
         return;
       }
-
       setCart((prev) => prev.filter((i) => i.id !== itemId));
       toast.success("Item removed");
     } catch (err) {
@@ -101,7 +104,6 @@ export default function CartPage({ user }) {
       );
 
       setCart([]); // Clear cart
-
       toast.success(
         `Order placed!\n\nItems: ${orderSummary}\nTotal: $${total.toFixed(2)}`,
         { duration: 6000 }
@@ -114,14 +116,16 @@ export default function CartPage({ user }) {
     }
   }
 
-  // Grand total
   const total = Array.isArray(cart)
     ? cart.reduce((sum, item) => sum + item.quantity * (item.price || 0), 0)
     : 0;
 
+  if (loadingCart) return <p className="p-6">Loading cart...</p>;
+
   return (
     <div className="p-6">
       <h1 className="text-xl font-bold mb-4">Your Cart</h1>
+
       {cart.length === 0 ? (
         <p>Your cart is empty</p>
       ) : (
@@ -129,13 +133,13 @@ export default function CartPage({ user }) {
           {cart.map((item) => (
             <li
               key={item.id}
-              className="flex justify-between items-center border p-4 rounded"
+              className="flex justify-between items-center border p-3 rounded hover:shadow-lg transition-shadow duration-200"
             >
               <div className="flex items-center space-x-4">
                 <img
                   src={item.image_url}
                   alt={item.product_name}
-                  className="w-16 h-16 object-cover rounded"
+                  className="w-12 h-12 object-cover rounded transition-transform duration-200 hover:scale-105"
                 />
                 <div>
                   <p className="font-medium">{item.product_name}</p>
@@ -163,7 +167,7 @@ export default function CartPage({ user }) {
                 </button>
                 <button
                   onClick={() => handleRemove(item.id)}
-                  className="px-2 py-1 bg-red-500 text-white rounded"
+                  className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-200"
                 >
                   Remove
                 </button>
