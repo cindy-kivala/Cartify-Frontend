@@ -20,20 +20,39 @@ export default function CartPage({ user }) {
   async function fetchCart() {
     try {
       const data = await getCartItems(user.username);
-      if (data.error) throw new Error(data.error);
+      if (data.error) {
+        toast.error(`Failed to load cart: ${data.error}`);
+        setCart([]); // avoid reduce errors
+        return;
+      }
       setCart(Array.isArray(data.items) ? data.items : []);
     } catch (err) {
       console.error(err);
       toast.error("Failed to load cart");
+      setCart([]);
     }
   }
 
   async function handleUpdate(itemId, newQty) {
     try {
+      const item = cart.find((i) => i.id === itemId);
+      if (!item) return;
+
+      if (newQty < 1) return;
+      if (newQty > item.stock) {
+        toast.error(`Only ${item.stock} items available`);
+        return;
+      }
+
       const updated = await updateCartItem(itemId, newQty);
+      if (updated.error) {
+        toast.error(`Update failed: ${updated.error}`);
+        return;
+      }
+
       setCart((prev) =>
-        prev.map((item) =>
-          item.id === itemId ? { ...item, quantity: updated.quantity } : item
+        prev.map((i) =>
+          i.id === itemId ? { ...i, quantity: updated.quantity } : i
         )
       );
     } catch (err) {
@@ -44,8 +63,13 @@ export default function CartPage({ user }) {
 
   async function handleRemove(itemId) {
     try {
-      await removeCartItem(itemId);
-      setCart((prev) => prev.filter((item) => item.id !== itemId));
+      const res = await removeCartItem(itemId);
+      if (res.error) {
+        toast.error(`Remove failed: ${res.error}`);
+        return;
+      }
+
+      setCart((prev) => prev.filter((i) => i.id !== itemId));
       toast.success("Item removed");
     } catch (err) {
       console.error(err);
@@ -56,7 +80,11 @@ export default function CartPage({ user }) {
   async function handleCheckout() {
     try {
       setLoadingCheckout(true);
-      await checkoutCart(user.username);
+      const res = await checkoutCart(user.username);
+      if (res.error) {
+        toast.error(`Checkout failed: ${res.error}`);
+        return;
+      }
 
       const orderSummary = cart
         .map(
@@ -103,17 +131,26 @@ export default function CartPage({ user }) {
               key={item.id}
               className="flex justify-between items-center border p-4 rounded"
             >
-              <div>
-                <p className="font-medium">{item.product_name}</p>
-                <p className="text-sm text-gray-600">
-                  Price: ${item.price} × {item.quantity} ={" "}
-                  <strong>${(item.price * item.quantity).toFixed(2)}</strong>
-                </p>
+              <div className="flex items-center space-x-4">
+                <img
+                  src={item.image_url}
+                  alt={item.product_name}
+                  className="w-16 h-16 object-cover rounded"
+                />
+                <div>
+                  <p className="font-medium">{item.product_name}</p>
+                  <p className="text-sm text-gray-600">
+                    Price: ${item.price} × {item.quantity} ={" "}
+                    <strong>${(item.price * item.quantity).toFixed(2)}</strong>
+                  </p>
+                </div>
               </div>
+
               <div className="flex space-x-2">
                 <button
                   onClick={() => handleUpdate(item.id, item.quantity + 1)}
-                  className="px-2 py-1 bg-green-500 text-white rounded"
+                  disabled={item.quantity >= item.stock}
+                  className="px-2 py-1 bg-green-500 text-white rounded disabled:opacity-50"
                 >
                   +
                 </button>
