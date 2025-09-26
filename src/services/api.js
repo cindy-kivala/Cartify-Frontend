@@ -1,88 +1,90 @@
-// src/services/api.js
 export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
+// Helper: fetch wrapper with JSON + error handling
+async function fetchJSON(url, options = {}) {
+  try {
+    const res = await fetch(url, options);
+    const text = await res.text();
+    let data;
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      data = { error: "Invalid JSON response" };
+    }
+
+    if (!res.ok) {
+      return data.error ? { error: data.error } : { error: res.statusText || "Request failed" };
+    }
+    return data;
+  } catch (err) {
+    return { error: err.message || "Network error" };
+  }
+}
+
 // ---------------- PRODUCTS ----------------
-export const getProducts = () =>
-  fetch(`${API_URL}/products`).then(res => res.json());
-
-export const getProductById = (id) =>
-  fetch(`${API_URL}/products/${id}`).then(res => res.json());
-
+export const getProducts = () => fetchJSON(`${API_URL}/products`);
+export const getProductById = (id) => fetchJSON(`${API_URL}/products/${id}`);
 export const createProduct = (product) =>
-  fetch(`${API_URL}/products`, {
+  fetchJSON(`${API_URL}/products`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(product),
-  }).then(res => res.json());
+  });
 
 // ---------------- AUTH / USERS ----------------
-export const getUsers = () =>
-  fetch(`${API_URL}/users`).then(res => res.json());
-
+export const getUsers = () => fetchJSON(`${API_URL}/users`);
 export const createUser = (user) =>
-  fetch(`${API_URL}/users`, {
+  fetchJSON(`${API_URL}/users`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(user),
-  }).then(res => res.json());
+  });
 
 export const signupUser = (user) =>
-  fetch(`${API_URL}/signup`, {
+  fetchJSON(`${API_URL}/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(user),
-  }).then(res => res.json());
+  });
 
 export const loginUser = (credentials) =>
-  fetch(`${API_URL}/login`, {
+  fetchJSON(`${API_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials),
-  }).then(res => res.json());
+  });
 
 // ---------------- CART ----------------
-export const getCartItems = (username) =>
-  fetch(`${API_URL}/cart/${username}`).then(res => res.json());
-
+export const getCartItems = (username) => fetchJSON(`${API_URL}/cart/${username}`);
 export const addCartItem = (item) =>
-  fetch(`${API_URL}/cart`, {
+  fetchJSON(`${API_URL}/cart`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(item),
-  }).then(res => res.json());
+  });
 
 export const updateCartItem = (itemId, quantity) =>
-  fetch(`${API_URL}/cart/item/${itemId}`, {
+  fetchJSON(`${API_URL}/cart/item/${itemId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ quantity }),
-  }).then(res => res.json());
+  });
 
 export const removeCartItem = (itemId) =>
-  fetch(`${API_URL}/cart/item/${itemId}`, {
-    method: "DELETE",
-  }).then(res => res.json());
+  fetchJSON(`${API_URL}/cart/item/${itemId}`, { method: "DELETE" });
 
 export const checkoutCart = (username) =>
-  fetch(`${API_URL}/cart/checkout/${username}`, {
-    method: "POST",
-  }).then(res => res.json());
+  fetchJSON(`${API_URL}/cart/checkout/${username}`, { method: "POST" });
 
 // ---------------- ORDERS ----------------
-export const getOrders = (username) =>
-  fetch(`${API_URL}/orders/${username}`).then(res => res.json());
-
+export const getOrders = (username) => fetchJSON(`${API_URL}/orders/${username}`);
 export const createOrder = (order) =>
-  fetch(`${API_URL}/orders`, {
+  fetchJSON(`${API_URL}/orders`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(order),
-  }).then(res => res.json());
+  });
 
-export const getOrderById = (orderId) =>
-  fetch(`${API_URL}/orders/${orderId}`).then(res => res.json());
-
+export const getOrderById = (orderId) => fetchJSON(`${API_URL}/orders/${orderId}`);
 export const deleteOrder = (orderId) =>
-  fetch(`${API_URL}/orders/${orderId}`, {
-    method: "DELETE",
-  }).then(res => res.json());
+  fetchJSON(`${API_URL}/orders/${orderId}`, { method: "DELETE" });
