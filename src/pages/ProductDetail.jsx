@@ -1,131 +1,62 @@
 // src/pages/ProductDetail.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import AddToCartButton from "../components/AddToCartButton";
 import toast from "react-hot-toast";
-import { getProductById, addCartItem } from "../services/api";
 
-export default function ProductDetail({ user }) {
+const API_URL = import.meta.env.VITE_API_URL;
+
+export default function ProductDetail({ addToCart, user }) {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const data = await getProductById(id);
-        setProduct(data);
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to fetch product details");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProduct();
-  }, [id]);
-
-  
-  const handleAddToCart = async () => {
-    if (!user) return toast.error("Please log in first");
-
+  const fetchProduct = async () => {
+    setLoading(true);
     try {
-      const res = await addCartItem(user.id, product.id, 1);
-      if (res.error) toast.error(res.error);
-      else toast.success("Added to cart");
+      const res = await fetch(`${API_URL}/products/${id}`);
+      const data = await res.json();
+      setProduct(data);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to add to cart");
+      toast.error("Failed to load product");
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) return <h2 className="glow">Loading product...</h2>;
-  if (!product) return <h2 className="glow">Product not found</h2>;
+  useEffect(() => {
+    fetchProduct();
+  }, [id]);
+
+  if (loading) return <p className="text-center py-10">Loading product...</p>;
+  if (!product) return <p className="text-center py-10">Product not found</p>;
 
   return (
-    <div className="page-container" style={{ padding: "24px" }}>
-      <div
-        className="product-detail-card"
-        style={{
-          display: "flex",
-          gap: "30px",
-          alignItems: "flex-start",
-          background: "#1e1e2f",
-          padding: "24px",
-          borderRadius: "12px",
-          boxShadow: "0 6px 14px rgba(0,0,0,0.3)",
-          flexWrap: "wrap",
-        }}
-      >
-        {/* Product image */}
-        <img
-          src={product.image_url}
-          alt={product.name}
-          style={{
-            width: "350px",
-            height: "350px",
-            objectFit: "cover",
-            borderRadius: "10px",
-            flexShrink: 0,
-          }}
-        />
+    <div className="max-w-4xl mx-auto p-4 flex flex-col md:flex-row gap-6">
+      <img
+        src={product.image_url}
+        alt={product.name}
+        className="w-full md:w-1/2 h-96 object-cover rounded"
+      />
+      <div className="flex-1 flex flex-col justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">{product.name}</h1>
+          <p className="mt-2 text-gray-700">${product.price.toFixed(2)}</p>
+          <p className="mt-4 text-gray-600">{product.description}</p>
+          <p className="mt-2 font-medium">Stock: {product.stock}</p>
+        </div>
 
-        {/* Product info */}
-        <div style={{ flex: 1, minWidth: "250px" }}>
-          <h1 className="product-name glow">{product.name}</h1>
-          <p className="product-price glow" style={{ fontSize: "1.5rem" }}>
-            ${product.price.toFixed(2)}
-          </p>
-
-          {product.description && (
-            <p
-              className="product-description"
-              style={{
-                marginTop: "12px",
-                fontSize: "1rem",
-                color: "#ddd",
-                lineHeight: "1.5",
-              }}
-            >
-              {product.description}
-            </p>
-          )}
-
-          <div style={{ marginTop: "16px", color: "#bbb" }}>
-            {product.category && (
-              <p>
-                <strong>Category:</strong> {product.category}
-              </p>
-            )}
-            {product.brand && (
-              <p>
-                <strong>Brand:</strong> {product.brand}
-              </p>
-            )}
-          </div>
-
-          {product.stock !== undefined && (
-            <p
-              style={{
-                marginTop: "12px",
-                color: product.stock > 0 ? "#0f0" : "#f00",
-              }}
-            >
-              {product.stock > 0
-                ? `In stock: ${product.stock}`
-                : "Out of stock"}
-            </p>
-          )}
-
-          <button
-            className="btn btn-primary"
-            style={{ marginTop: "20px", padding: "10px 20px" }}
-            onClick={handleAddToCart}
-            disabled={product.stock <= 0}
-          >
-            {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
-          </button>
+        <div className="mt-4">
+          <AddToCartButton
+            user={user}
+            productId={product.id}
+            stock={product.stock}
+            onAdded={() => addToCart(product.id)}
+          />
         </div>
       </div>
     </div>
   );
 }
+

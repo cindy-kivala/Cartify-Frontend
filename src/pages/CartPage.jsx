@@ -1,31 +1,33 @@
+// src/pages/CartPage.jsx
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import {
-  getCartItems,
-  updateCartItem,
-  removeCartItem,
-  checkoutCart,
-} from "../services/api";
+import { getCartItems, checkoutCart } from "../services/api";
 import CartItemControls from "../components/CartItemControls";
 
 export default function CartPage({ user }) {
   const [cart, setCart] = useState([]);
-
-  useEffect(() => {
-    if (!user) return;
-    fetchCart();
-  }, [user]);
+  const [loading, setLoading] = useState(true);
 
   const fetchCart = async () => {
+    if (!user) {
+      setCart([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     try {
       const data = await getCartItems(user.username);
-      if (data.items) setCart(data.items);
-      else setCart([]);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch cart");
+      setCart(data || []);
+    } catch {
+      toast.error("Failed to load cart items");
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCart();
+  }, [user]);
 
   const handleUpdate = (updatedItem) => {
     setCart((prev) => prev.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
@@ -36,45 +38,64 @@ export default function CartPage({ user }) {
   };
 
   const handleCheckout = async () => {
+    if (!user) return toast.error("Please log in first");
     try {
-      const res = await checkoutCart(user.username);
-      if (res.error) toast.error(res.error);
-      else {
-        toast.success("Checkout successful!");
-        setCart([]);
-      }
-    } catch (err) {
-      console.error(err);
+      await checkoutCart(user.username);
+      setCart([]);
+      toast.success("Checkout successful");
+    } catch {
       toast.error("Checkout failed");
     }
   };
 
-  const totalPrice = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  if (loading) return <p className="text-center py-10">Loading cart...</p>;
 
   return (
-    <div className="page-container" style={{ padding: "24px" }}>
-      <h1 className="page-title glow">My Cart</h1>
+    <div className="max-w-3xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Your Cart</h1>
+
       {cart.length === 0 ? (
-        <p className="text-muted">Your cart is empty</p>
+        <p className="text-center text-gray-600">Your cart is empty</p>
       ) : (
         <>
-          <div style={{ display: "grid", gap: "20px" }}>
+          <ul className="space-y-4">
             {cart.map((item) => (
-              <div key={item.id} className="product-card">
-                <h2 className="product-name glow">{item.product_name}</h2>
-                <p className="product-price glow">
-                  ${item.price.toFixed(2)} × {item.quantity} = ${(item.price * item.quantity).toFixed(2)}
-                </p>
-                <CartItemControls item={item} onUpdate={handleUpdate} onRemove={handleRemove} />
-              </div>
+              <li
+                key={item.id}
+                className="flex items-center justify-between border rounded-lg p-3 shadow-sm hover:shadow-md transition"
+              >
+                <div className="flex items-center gap-4">
+                  <img
+                    src={item.image_url}
+                    alt={item.product_name}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                  <div>
+                    <p className="font-medium">{item.product_name}</p>
+                    <p className="text-gray-700">${item.price.toFixed(2)}</p>
+                  </div>
+                </div>
+
+                <CartItemControls
+                  item={item}
+                  onUpdate={handleUpdate}
+                  onRemove={handleRemove}
+                />
+              </li>
             ))}
+          </ul>
+
+          <div className="mt-6 flex justify-between items-center font-semibold text-lg">
+            <span>Total: ${totalPrice.toFixed(2)}</span>
+            <button
+              onClick={handleCheckout}
+              className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition"
+            >
+              Checkout
+            </button>
           </div>
-          <div style={{ marginTop: "20px", fontSize: "1.2rem" }}>
-            <strong>Total: ${totalPrice.toFixed(2)}</strong>
-          </div>
-          <button className="btn btn-primary mt-4" onClick={handleCheckout}>
-            Checkout
-          </button>
         </>
       )}
     </div>
