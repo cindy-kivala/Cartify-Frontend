@@ -1,7 +1,7 @@
 // src/pages/CartPage.jsx
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { getCartItems, addCartItem, updateCartItem, removeCartItem, checkout } from "../services/api";
+import { getCartItems, addCartItem, updateCartItem, removeCartItem, checkoutCart } from "../services/api";
 
 
 export default function CartPage({ user }) {
@@ -56,12 +56,13 @@ export default function CartPage({ user }) {
   };
 
 
-  const checkoutCart = async () => {
+// ---------------- HANDLE CHECKOUT ----------------
+  const handleCheckout = async () => {
     if (!user) return toast.error("Please login first");
     if (cart.length === 0) return toast.error("Cart is empty");
 
     try {
-      await checkoutCart(user.username);
+      await checkoutCart(user.username); // calls the API function
       setCart([]);
       toast.success("Checkout successful! Your order has been placed.");
     } catch (err) {
@@ -69,6 +70,7 @@ export default function CartPage({ user }) {
       toast.error(err?.error || "Checkout failed");
     }
   };
+  
 
   return (
     <div className="page-container" style={{ padding: "24px" }}>
@@ -124,7 +126,7 @@ export default function CartPage({ user }) {
           ))}
           <button
             className="btn btn-primary"
-            onClick={checkout}
+            onClick={handleCheckout}
             style={{ marginTop: "20px" }}
           >
             Checkout
