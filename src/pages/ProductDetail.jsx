@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { getProduct, addCartItem } from "../services/api";
+import { getProductById, addCartItem } from "../services/api";
 
 export default function ProductDetail({ user }) {
   const { id } = useParams();
@@ -12,7 +12,7 @@ export default function ProductDetail({ user }) {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const data = await getProduct(id);
+        const data = await getProductById(id);
         setProduct(data);
       } catch (err) {
         console.error(err);
