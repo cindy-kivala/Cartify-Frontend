@@ -1,4 +1,4 @@
-export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+export const API_URL = import.meta.env.VITE_API_URL;
 
 // Helper: fetch wrapper with JSON + error handling
 async function fetchJSON(url, options = {}) {
