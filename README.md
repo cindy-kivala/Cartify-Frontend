@@ -1,104 +1,177 @@
-# 🛒 Cartify – Full-Stack E-Commerce Application  
+# Cartify
 
-## 📌 Overview  
-Cartify is a full-stack e-commerce application built with:  
-- **Backend:** Flask, Flask-SQLAlchemy, Flask-Migrate, Flask-Bcrypt, Flask-CORS  
-- **Frontend:** React (Vite), React Router, Formik for forms, Axios for API calls  
-- **Database:** SQLite (default, can switch to PostgreSQL/MySQL)  
+## Overview
+Cartify is a full-stack e-commerce web application built with a **Flask backend** and a **React frontend**.  
+It allows users to browse products, manage shopping carts, and place orders while handling authentication, validation, and persistence.  
 
-It allows users to:  
-✅ Sign up / Log in with authentication  
-✅ Browse products  
-✅ Add products to cart  
-✅ Place orders  
-✅ Manage cart items  
+This project demonstrates full-stack engineering skills by integrating:  
+- A Flask REST API backend with SQLAlchemy models and relationships.  
+- A React frontend with multiple routes, forms, and client-side navigation.  
+- CRUD operations, form validation, and database persistence.  
 
 ---
 
-## ⚙️ Features  
-- **Users** can sign up, log in, and manage their cart & orders.  
-- **Products** have stock validation, categories, brand, description, and pricing.  
-- **Cart Items** link users and products (with quantity).  
-- **Orders** allow checkout with many-to-many relation between products and orders via `OrderItem`.  
-- Full CRUD on Products.  
-- Read & Create for Users, CartItems, Orders.  
-- Validations: price > 0, stock ≥ 0, email uniqueness.  
-- Formik forms with validation in frontend.  
-- React Router navigation (Home, Products, Cart, Orders).  
+## Features
+
+### Backend (Flask)
+- REST API with **CRUD operations** (GET, POST, PATCH, DELETE).  
+- **Three+ models** (User, Product, Order, CartItem) with relationships:  
+  - One-to-many: User → Orders, Product → CartItems.  
+  - Many-to-many: Orders ↔ Products through CartItem, with extra attributes (quantity).  
+- Database seeding with `seed.py`.  
+- Authentication routes (`auth.py`).  
+- SQLAlchemy with Marshmallow serialization.  
+- Proper HTTP status codes and CORS enabled.  
+
+### Frontend (React)
+- **Multiple routes** handled via React Router (Home, Products, Product Detail, Cart, Orders, Auth).  
+- **Reusable components**: `NavBar`, product cards, forms.  
+- **Formik forms** with validation for signup, login, and product submission.  
+- Validations:  
+  - Data type (e.g., price must be a number).  
+  - String/number format (e.g., email validation, password length).  
+- State management using hooks.  
+- Fetch API integration with the Flask backend.  
 
 ---
 
-## 🗂️ Project Structure  
+## Tech Stack
+- **Frontend**: React, Vite, Formik, Yup, React Router, Fetch API  
+- **Backend**: Flask, Flask-SQLAlchemy, Flask-Migrate, Flask-CORS, Marshmallow  
+- **Database**: SQLite (dev)  
 
-### Backend (`Cartify-Backend/`)
-server/
-│── app.py             # Flask app factory
-│── models.py          # SQLAlchemy models
-│── auth.py            # Authentication routes
-│── routes/            # API routes
-│── seed.py            # Database seeding
-│── migrations/        # Flask-Migrate versions
+---
 
+## Project Structure
 
 ### Frontend (`Cartify-Frontend/`)
-src/
-│── App.jsx
-│── components/
-│── pages/
-│── services/
+Cartify-Frontend/
+├── public/
+├── src/
+│ ├── App.jsx
+│ ├── App.css
+│ ├── main.jsx
+│ ├── index.css
+│ ├── Styles.css
+│ ├── assets/
+│ ├── services/ # API service helpers
+│ ├── components/
+│ │ └── NavBar.jsx
+│ └── pages/
+│ ├── HomePage.jsx
+│ ├── ProductsPage.jsx
+│ ├── ProductDetail.jsx
+│ ├── ProductForm.jsx
+│ ├── CartPage.jsx
+│ ├── OrdersPage.jsx
+│ ├── LoginPage.jsx
+│ └── SignupPage.jsx
+├── package.json
+├── vite.config.js
+
+### Backend (`Cartify-Backend/`)
+Cartify-Backend/
+├── migrations/
+├── server/
+│ ├── app.py # Flask entry point
+│ ├── init.py
+│ ├── models.py # SQLAlchemy models (User, Product, Order, CartItem)
+│ ├── auth.py # Authentication routes
+│ ├── seed.py # Database seeding script
+│ ├── store.db # SQLite database
+│ ├── instance/ # Flask instance config
+│ └── pycache/
+├── Pipfile
+├── Pipfile.lock
+├── requirements.txt
+
+
+## Database Schema
+
+### Models and Relationships
+- **User**  
+  - id, username, email, password_hash  
+  - One-to-many with Orders  
+
+- **Product**  
+  - id, name, price, created_at  
+  - One-to-many with CartItems  
+
+- **Order**  
+  - id, user_id, created_at  
+  - Many-to-many with Products via CartItems  
+
+- **CartItem (association table)**  
+  - id, order_id, product_id, quantity  
+  - Extra field: `quantity` (user-submittable attribute)  
 
 ---
 
-## 🚀 Setup Instructions  
+## API Endpoints
 
-### Backend
-cd Cartify-Backend
-pip install -r requirements.txt
-flask db upgrade
-python -m server.app
+| Method | Endpoint         | Description                |
+|--------|------------------|----------------------------|
+| GET    | /products        | Get all products           |
+| POST   | /products        | Add new product            |
+| GET    | /products/:id    | Get single product         |
+| PATCH  | /products/:id    | Update product             |
+| DELETE | /products/:id    | Delete product             |
+| GET    | /orders          | Get user orders            |
+| POST   | /orders          | Place new order            |
+| GET    | /cart            | Get current cart           |
+| POST   | /cart            | Add item to cart           |
+| PATCH  | /cart/:id        | Update cart item quantity  |
+| DELETE | /cart/:id        | Remove item from cart      |
+| POST   | /signup          | Register new user          |
+| POST   | /login           | User login                 |
 
-## FrontEnd
-cd Cartify-Frontend
-npm install
-npm run dev
+---
+## Running the Project
 
-🛠️ Tech Stack
+### Backend Setup
 
-Backend: Flask, SQLAlchemy, Bcrypt, CORS, Migrate
+- cd Cartify-Backend
+- pip install -r requirements.txt
+- flask db upgrade
+- python server/seed.py
+- flask run
 
-Frontend: React, Formik, React Router, Axios, Toast
+### Frontend Setup
+- cd Cartify-Frontend
+- npm install
+- npm run dev
 
-Database: SQLite 
+### Port
+- The frontend runs on http://localhost:5173 and connects to the backend API at http://localhost:5000.
 
+## Validation Examples
 
-📚 Learning Goals Achieved
+# Signup Form (Formik + Yup):
 
-✅ Flask API backend with React frontend
-✅ At least three models (User, Product, Order, CartItem, OrderItem)
-✅ Two one-to-many relationships (User → CartItem, User → Order, Product → CartItem)
-✅ One reciprocal many-to-many relationship (Order ↔ Product via OrderItem)
-✅ Full CRUD on Products
-✅ Create & Read on Users, Cart, Orders
-✅ Validations for data types, string formats, numbers
-✅ Client routes with React Router
-✅ Forms with Formik & validations
-✅ Connected frontend & backend with Axios
+- Email must match valid format.
 
+-Password must be at least 8 characters.
 
-### 🖼️ Installation Guide with Screenshots
-## 1. Clone the repository
-git clone https://github.com/your-username/Cartify.git
-cd Cartify
+# Product Form:
 
+- Name is required.
 
-## 2. Backend Setup
-cd Cartify-Backend
-pip install -r requirements.txt
-flask db upgrade
-python -m server.app
+- Price must be a number greater than 0.
 
-## 3. Frontend Setup
-cd Cartify-Frontend
-npm install
-npm run dev
+## Rubric Mapping
 
+- Flask (8 pts): Supports GET, POST, PATCH, DELETE with correct status codes and CORS.
+
+- SQLAlchemy & Serialization (8 pts): 4 models, 2 one-to-many, 1 many-to-many, Marshmallow serialization.
+
+- Forms & Validation (6 pts): Formik used for signup, login, product form. Includes type and format validations.
+
+- React Routes (8 pts): 7+ pages, NavBar for navigation, fetch connects frontend and backend.
+
+## Future Improvements
+
+- Payment gateway integration
+
+- Role-based authentication (admin, customer)
+
+- Product categories and search

@@ -3,6 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { signupUser } from "../services/api";
 
 export default function Signup({ onLogin }) {
   const navigate = useNavigate();
@@ -16,8 +17,8 @@ export default function Signup({ onLogin }) {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const res = await axios.post("http://localhost:5000/signup", values);
-      onLogin(res.data);
+      const user = await signupUser(values);
+      onLogin(user);
       toast.success("Signup successful!");
       navigate("/");
     } catch (err) {
@@ -31,7 +32,11 @@ export default function Signup({ onLogin }) {
   return (
     <div className="page-container" style={{ padding: "24px", maxWidth: "400px", margin: "auto" }}>
       <h1 className="page-title glow">Sign Up</h1>
-      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
+      <Formik 
+         initialValues={initialValues} 
+         validationSchema={validationSchema} 
+         onSubmit={handleSubmit}
+      >
         {({ isSubmitting }) => (
           <Form className="product-form">
             <Field className="form-input" name="username" placeholder="Username" />

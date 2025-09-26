@@ -3,15 +3,18 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { getProducts } from "../services/api";
+import { addCartItem } from "../services/api";
 
 export default function ProductsPage({ user, onAddToCart }) {
   const [products, setProducts] = useState([]);
 
+  
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/products");
-        setProducts(res.data);
+        const data = await getProducts();
+        setProducts(data);
       } catch (err) {
         console.error(err);
         toast.error("Failed to fetch products");
@@ -19,6 +22,7 @@ export default function ProductsPage({ user, onAddToCart }) {
     };
     fetchProducts();
   }, []);
+
 
   return (
     <div className="page-container" style={{ padding: "24px" }}>
@@ -100,7 +104,7 @@ export default function ProductsPage({ user, onAddToCart }) {
               style={{ marginTop: "12px", width: "100%" }}
               onClick={() => {
                 if (!user) return toast.error("Please log in first");
-                onAddToCart(product.id);
+                addToCart(product.id, currentUser.username)
               }}
               disabled={product.stock <= 0}
             >

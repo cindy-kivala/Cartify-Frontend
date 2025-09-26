@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import  { getOrders, deleteOrderById, API_URL  } from "../services/api";
 
 export default function Orders({ user }) {
   const [orders, setOrders] = useState([]);
@@ -12,18 +13,18 @@ export default function Orders({ user }) {
 
   const fetchOrders = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/orders/${user.username}`);
-      setOrders(res.data);
+      const data = await getOrders(user.id);
+      setOrders(data);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch orders");
     }
   };
 
-  const deleteOrder = async (id) => {
+  const handleDeleteOrder = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/orders/${id}`);
-      setOrders(prev => prev.filter(order => order.id !== id));
+      await deleteOrderById(id);
+      setOrders((prev) => prev.filter((order) => order.id !== id));
       toast.success("Order deleted successfully!");
     } catch (err) {
       console.error(err);
@@ -56,7 +57,12 @@ export default function Orders({ user }) {
                   </li>
                 ))}
               </ul>
-              <button className="btn btn-delete" onClick={() => deleteOrder(order.id)}>Delete Order</button>
+              <button 
+                className="btn btn-delete" 
+                onClick={() => handleDeleteOrder(order.id)}
+              >
+              Delete Order
+              </button>
             </div>
           ))}
         </div>

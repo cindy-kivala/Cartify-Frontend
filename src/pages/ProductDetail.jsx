@@ -1,8 +1,10 @@
 // src/pages/ProductDetail.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import toast from "react-hot-toast";
+import { getProductById } from "../services/api";
+import { addToCart } from "../services/api";
+
 
 export default function ProductDetail({ addToCart }) {
   const { id } = useParams();
@@ -12,8 +14,8 @@ export default function ProductDetail({ addToCart }) {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/products/${id}`);
-        setProduct(res.data);
+        const res = await getProductById(id);
+        setProduct(res);
       } catch (err) {
         console.error(err);
         toast.error("Failed to fetch product details");
@@ -27,12 +29,6 @@ export default function ProductDetail({ addToCart }) {
   if (loading) return <h2 className="glow">Loading product...</h2>;
   if (!product) return <h2 className="glow">Product not found</h2>;
 
-  const handleAddToCart = () => {
-    if (addToCart) {
-      addToCart(product.id);
-      toast.success("Added to cart");
-    }
-  };
 
   return (
     <div className="page-container" style={{ padding: "24px" }}>
@@ -110,7 +106,7 @@ export default function ProductDetail({ addToCart }) {
           <button
             className="btn btn-primary"
             style={{ marginTop: "20px", padding: "10px 20px" }}
-            onClick={() => addToCart(product.id)}
+            onClick={() => addToCart(product.id, currentUser.username)}
             disabled={product.stock <= 0} // ✅ disable button
           >
             {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
