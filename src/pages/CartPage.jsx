@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {
   getCartItems,
-  addCartItem,
   updateCartItem,
   removeCartItem,
   checkoutCart,
@@ -20,20 +19,21 @@ export default function CartPage({ user }) {
 
   async function fetchCart() {
     try {
-      const items = await getCartItems(user.username);
-      setCart(items);
+      const data = await getCartItems(user.username);
+      if (data.error) throw new Error(data.error);
+      setCart(Array.isArray(data.items) ? data.items : []);
     } catch (err) {
       console.error(err);
       toast.error("Failed to load cart");
     }
   }
 
-  async function handleUpdate(productId, newQty) {
+  async function handleUpdate(itemId, newQty) {
     try {
-      const updated = await updateCartItem(user.username, productId, newQty);
+      const updated = await updateCartItem(itemId, newQty);
       setCart((prev) =>
         prev.map((item) =>
-          item.product_id === productId ? { ...item, quantity: updated.quantity } : item
+          item.id === itemId ? { ...item, quantity: updated.quantity } : item
         )
       );
     } catch (err) {
@@ -42,10 +42,10 @@ export default function CartPage({ user }) {
     }
   }
 
-  async function handleRemove(productId) {
+  async function handleRemove(itemId) {
     try {
-      await removeCartItem(user.username, productId);
-      setCart((prev) => prev.filter((item) => item.product_id !== productId));
+      await removeCartItem(itemId);
+      setCart((prev) => prev.filter((item) => item.id !== itemId));
       toast.success("Item removed");
     } catch (err) {
       console.error(err);
@@ -53,44 +53,43 @@ export default function CartPage({ user }) {
     }
   }
 
- async function handleCheckout() {
-  try {
-    setLoadingCheckout(true);
-    await checkoutCart(user.username);
+  async function handleCheckout() {
+    try {
+      setLoadingCheckout(true);
+      await checkoutCart(user.username);
 
-    const orderSummary = cart
-      .map(
-        (item) =>
-          `${item.product?.name} × ${item.quantity} ($${(
-            item.product?.price * item.quantity
-          ).toFixed(2)})`
-      )
-      .join(", ");
+      const orderSummary = cart
+        .map(
+          (item) =>
+            `${item.product_name} × ${item.quantity} ($${(
+              item.price * item.quantity
+            ).toFixed(2)})`
+        )
+        .join(", ");
 
-    const total = cart.reduce(
-      (sum, item) => sum + item.quantity * (item.product?.price || 0),
-      0
-    );
+      const total = cart.reduce(
+        (sum, item) => sum + item.quantity * (item.price || 0),
+        0
+      );
 
-    setCart([]); // Clear cart
+      setCart([]); // Clear cart
 
-    toast.success(
-      `Order placed!\n\nItems: ${orderSummary}\nTotal: $${total.toFixed(2)}`,
-      { duration: 6000 }
-    );
-  } catch (err) {
-    console.error(err);
-    toast.error("Checkout failed");
-  } finally {
-    setLoadingCheckout(false);
+      toast.success(
+        `Order placed!\n\nItems: ${orderSummary}\nTotal: $${total.toFixed(2)}`,
+        { duration: 6000 }
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Checkout failed");
+    } finally {
+      setLoadingCheckout(false);
+    }
   }
-}
 
-
-  const total = cart.reduce(
-    (sum, item) => sum + item.quantity * (item.product?.price || 0),
-    0
-  );
+  // Grand total
+  const total = Array.isArray(cart)
+    ? cart.reduce((sum, item) => sum + item.quantity * (item.price || 0), 0)
+    : 0;
 
   return (
     <div className="p-6">
@@ -101,32 +100,32 @@ export default function CartPage({ user }) {
         <ul className="space-y-4">
           {cart.map((item) => (
             <li
-              key={item.product_id}
+              key={item.id}
               className="flex justify-between items-center border p-4 rounded"
             >
               <div>
-                <p className="font-medium">{item.product?.name}</p>
+                <p className="font-medium">{item.product_name}</p>
                 <p className="text-sm text-gray-600">
-                  Price: ${item.product?.price} × {item.quantity} ={" "}
-                  <strong>${(item.product?.price * item.quantity).toFixed(2)}</strong>
+                  Price: ${item.price} × {item.quantity} ={" "}
+                  <strong>${(item.price * item.quantity).toFixed(2)}</strong>
                 </p>
               </div>
               <div className="flex space-x-2">
                 <button
-                  onClick={() => handleUpdate(item.product_id, item.quantity + 1)}
+                  onClick={() => handleUpdate(item.id, item.quantity + 1)}
                   className="px-2 py-1 bg-green-500 text-white rounded"
                 >
                   +
                 </button>
                 <button
-                  onClick={() => handleUpdate(item.product_id, item.quantity - 1)}
+                  onClick={() => handleUpdate(item.id, item.quantity - 1)}
                   disabled={item.quantity <= 1}
                   className="px-2 py-1 bg-yellow-500 text-white rounded disabled:opacity-50"
                 >
                   -
                 </button>
                 <button
-                  onClick={() => handleRemove(item.product_id)}
+                  onClick={() => handleRemove(item.id)}
                   className="px-2 py-1 bg-red-500 text-white rounded"
                 >
                   Remove
