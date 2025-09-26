@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import toast from "react-hot-toast";
-import { loginUser } from "../api"; //use api.js helper
+import { loginUser } from "../services/api"; //use api.js helper
 
 export default function Login({ onLogin }) {
   const navigate = useNavigate();

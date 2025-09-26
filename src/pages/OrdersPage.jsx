@@ -1,7 +1,7 @@
 // src/pages/Orders.jsx
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { getOrders, deleteOrder as apiDeleteOrder } from "../api";
+import { getOrders, deleteOrder as apiDeleteOrder } from "../services/api";
 
 export default function Orders({ user }) {
   const [orders, setOrders] = useState([]);

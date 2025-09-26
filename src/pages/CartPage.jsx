@@ -1,7 +1,7 @@
 // src/pages/CartPage.jsx
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { getCartItems, addCartItem, updateCartItem, removeCartItem, checkoutCart } from "../api";
+import { getCartItems, addCartItem, updateCartItem, removeCartItem, checkoutCart } from "../services/api";
 
 export default function CartPage({ user }) {
   const [cart, setCart] = useState([]);

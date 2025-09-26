@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { getProduct, addCartItem } from "../api";
+import { getProduct, addCartItem } from "../services/api";
 
 export default function ProductDetail({ user }) {
   const { id } = useParams();

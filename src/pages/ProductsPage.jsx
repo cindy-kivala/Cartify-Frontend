@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { getProducts, addCartItem } from "../api";
+import { getProducts, addCartItem } from "../services/api";
 
 export default function ProductsPage({ user }) {
   const [products, setProducts] = useState([]);
