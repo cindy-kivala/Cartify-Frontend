@@ -1,81 +1,92 @@
-export const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
-// Unified fetch helper
-async function fetchJSON(endpoint, options = {}) {
-  try {
-    const res = await fetch(`${API_URL}${endpoint}`, {
-      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
-      ...options,
-    });
-
-    const contentType = res.headers.get("content-type");
-    let data;
-
-    if (contentType && contentType.includes("application/json")) {
-      data = await res.json();
-    } else {
-      data = { error: `Unexpected response from server: ${res.status} ${res.statusText}` };
-    }
-
-    if (!res.ok) {
-      return { error: data?.error || `HTTP ${res.status}: ${res.statusText}` };
-    }
-
-    return data;
-  } catch (err) {
-    return { error: err.message || "Network error" };
-  }
-}
-
-// ---------------- PRODUCTS ----------------
-export const getProducts = () => fetchJSON(`/products`);
-export const getProductById = (id) => fetchJSON(`/products/${id}`);
-export const createProduct = (product) =>
-  fetchJSON(`/products`, { method: "POST", body: JSON.stringify(product) });
-
-// ---------------- USERS / AUTH ----------------
-export const getUsers = () => fetchJSON(`/users`);
-export const createUser = (user) =>
-  fetchJSON(`/users`, { method: "POST", body: JSON.stringify(user) });
-export const signupUser = (user) =>
-  fetchJSON(`/signup`, { method: "POST", body: JSON.stringify(user) });
-export const loginUser = (credentials) =>
-  fetchJSON(`/login`, { method: "POST", body: JSON.stringify(credentials) });
-
-// ---------------- CART ----------------
-export const getCartItems = (username) => fetchJSON(`/cart/${username}`);
-export const addCartItem = (userId, productId, quantity = 1) =>
-  fetchJSON(`/cart`, {
+// -------------------- AUTH --------------------
+export const signupUser = async (userData) => {
+  const res = await fetch(`${API_URL}/signup`, {
     method: "POST",
-    body: JSON.stringify({ user_id: userId, product_id: productId, quantity }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userData),
   });
-export const updateCartItem = (itemId, quantity) =>
-  fetchJSON(`/cart/item/${itemId}`, { method: "PATCH", body: JSON.stringify({ quantity }) });
-export const removeCartItem = (itemId) =>
-  fetchJSON(`/cart/item/${itemId}`, { method: "DELETE" });
+  return res.json();
+};
 
-export async function checkoutCart(username) {
+export const loginUser = async (credentials) => {
+  const res = await fetch(`${API_URL}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  });
+  return res.json();
+};
+
+export const logoutUser = async () => {
+  const res = await fetch(`${API_URL}/logout`, { method: "POST" });
+  return res.json();
+};
+
+// -------------------- PRODUCTS --------------------
+export const getProducts = async () => {
+  const res = await fetch(`${API_URL}/products`);
+  return res.json();
+};
+
+export const getProductById = async (id) => {
+  const res = await fetch(`${API_URL}/products/${id}`);
+  return res.json();
+};
+
+export const createProduct = async (data) => {
+  const res = await fetch(`${API_URL}/products`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return res.json();
+};
+
+// -------------------- CART --------------------
+export const getCartItems = async (username) => {
+  const res = await fetch(`${API_URL}/cart/${username}`);
+  return res.json();
+};
+
+export const addCartItem = async (user_id, product_id, quantity = 1) => {
+  const res = await fetch(`${API_URL}/cart`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id, product_id, quantity }),
+  });
+  return res.json();
+};
+
+export const updateCartItem = async (item_id, quantity) => {
+  const res = await fetch(`${API_URL}/cart/item/${item_id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ quantity }),
+  });
+  return res.json();
+};
+
+export const removeCartItem = async (item_id) => {
+  const res = await fetch(`${API_URL}/cart/item/${item_id}`, {
+    method: "DELETE",
+  });
+  return res.json();
+};
+
+export const checkoutCart = async (username) => {
   const res = await fetch(`${API_URL}/cart/checkout/${username}`, { method: "POST" });
-  const contentType = res.headers.get("content-type");
-  let data;
+  return res.json();
+};
 
-  if (contentType && contentType.includes("application/json")) {
-    data = await res.json();
-  } else {
-    throw new Error(`Unexpected response from server: ${res.status} ${res.statusText}`);
-  }
+// -------------------- ORDERS --------------------
+export const getOrders = async (username) => {
+  const res = await fetch(`${API_URL}/orders/${username}`);
+  return res.json();
+};
 
-  if (!res.ok) {
-    throw new Error(data?.error || `HTTP ${res.status}: ${res.statusText}`);
-  }
-
-  return data;
-}
-
-// ---------------- ORDERS ----------------
-export const getOrders = (username) => fetchJSON(`/orders/${username}`);
-export const createOrder = (order) =>
-  fetchJSON(`/orders`, { method: "POST", body: JSON.stringify(order) });
-export const getOrderById = (orderId) => fetchJSON(`/orders/${orderId}`);
-export const deleteOrder = (orderId) =>
-  fetchJSON(`/orders/${orderId}`, { method: "DELETE" });
+export const deleteOrder = async (order_id) => {
+  const res = await fetch(`${API_URL}/orders/${order_id}`, { method: "DELETE" });
+  return res.json();
+};

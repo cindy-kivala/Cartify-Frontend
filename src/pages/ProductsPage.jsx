@@ -1,8 +1,8 @@
-// src/pages/ProductsPage.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { getProducts, addCartItem } from "../services/api";
+import { getProducts } from "../services/api";
+import AddToCartButton from "../components/AddToCartButton";
 
 export default function ProductsPage({ user }) {
   const [products, setProducts] = useState([]);
@@ -11,7 +11,7 @@ export default function ProductsPage({ user }) {
     const fetchProducts = async () => {
       try {
         const data = await getProducts();
-        setProducts(data);
+        setProducts(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
         toast.error("Failed to fetch products");
@@ -20,31 +20,9 @@ export default function ProductsPage({ user }) {
     fetchProducts();
   }, []);
 
-  const handleAddToCart = async (productId) => {
-    if (!user) return toast.error("Please log in first");
-
-    try {
-      const res = await addCartItem({
-        username: user.username,
-        product_id: productId,
-        quantity: 1,
-      });
-
-      if (res.error) {
-        toast.error(res.error);
-      } else {
-        toast.success("Added to cart");
-        // Optionally, update local state to reflect new cart item count
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to add to cart");
-    }
-  };
-
   return (
-    <div className="page-container" style={{ padding: "24px" }}>
-      <h1 className="page-title glow">Products</h1>
+    <div className="page-container p-6">
+      <h1 className="page-title glow text-2xl mb-6">Products</h1>
       <div
         style={{
           display: "grid",
@@ -84,13 +62,7 @@ export default function ProductsPage({ user }) {
               <p className="product-price glow">${product.price.toFixed(2)}</p>
 
               {product.description && (
-                <p
-                  style={{
-                    fontSize: "0.9rem",
-                    color: "#ddd",
-                    margin: "8px 0",
-                  }}
-                >
+                <p style={{ fontSize: "0.9rem", color: "#ddd", margin: "8px 0" }}>
                   {product.description}
                 </p>
               )}
@@ -118,14 +90,11 @@ export default function ProductsPage({ user }) {
               )}
             </Link>
 
-            <button
-              className="btn btn-primary"
-              style={{ marginTop: "12px", width: "100%" }}
-              onClick={() => handleAddToCart(product.id)}
-              disabled={product.stock <= 0}
-            >
-              {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
-            </button>
+            <AddToCartButton
+              user={user}
+              productId={product.id}
+              stock={product.stock}
+            />
           </div>
         ))}
       </div>

@@ -24,21 +24,14 @@ export default function ProductDetail({ user }) {
     fetchProduct();
   }, [id]);
 
+  
   const handleAddToCart = async () => {
     if (!user) return toast.error("Please log in first");
 
     try {
-      const res = await addCartItem({
-        username: user.username,
-        product_id: product.id,
-        quantity: 1,
-      });
-
-      if (res.error) {
-        toast.error(res.error);
-      } else {
-        toast.success("Added to cart");
-      }
+      const res = await addCartItem(user.id, product.id, 1);
+      if (res.error) toast.error(res.error);
+      else toast.success("Added to cart");
     } catch (err) {
       console.error(err);
       toast.error("Failed to add to cart");
