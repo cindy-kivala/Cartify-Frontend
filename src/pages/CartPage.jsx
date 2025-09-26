@@ -41,7 +41,6 @@ export default function CartPage({ user }) {
     try {
       const item = cart.find((i) => i.id === itemId);
       if (!item) return;
-
       if (newQty < 1) return;
       if (newQty > item.stock) {
         toast.error(`Only ${item.stock} items available`);
@@ -89,25 +88,15 @@ export default function CartPage({ user }) {
         return;
       }
 
-      const orderSummary = cart
-        .map(
-          (item) =>
-            `${item.product_name} × ${item.quantity} ($${(
-              item.price * item.quantity
-            ).toFixed(2)})`
-        )
-        .join(", ");
-
       const total = cart.reduce(
         (sum, item) => sum + item.quantity * (item.price || 0),
         0
       );
 
       setCart([]); // Clear cart
-      toast.success(
-        `Order placed!\n\nItems: ${orderSummary}\nTotal: $${total.toFixed(2)}`,
-        { duration: 6000 }
-      );
+      toast.success(`Checkout successful! Total: $${total.toFixed(2)}`, {
+        duration: 5000,
+      });
     } catch (err) {
       console.error(err);
       toast.error("Checkout failed");
@@ -116,77 +105,74 @@ export default function CartPage({ user }) {
     }
   }
 
-  const total = Array.isArray(cart)
-    ? cart.reduce((sum, item) => sum + item.quantity * (item.price || 0), 0)
-    : 0;
+  const total = cart.reduce(
+    (sum, item) => sum + item.quantity * (item.price || 0),
+    0
+  );
 
   if (loadingCart) return <p className="p-6">Loading cart...</p>;
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Your Cart</h1>
+      <h1 className="text-2xl font-bold mb-6">Your Cart</h1>
 
       {cart.length === 0 ? (
-        <p>Your cart is empty</p>
+        <p className="text-gray-500">Your cart is empty</p>
       ) : (
-        <ul className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cart.map((item) => (
-            <li
+            <div
               key={item.id}
-              className="flex justify-between items-center border p-3 rounded hover:shadow-lg transition-shadow duration-200"
+              className="flex flex-col items-center border rounded-lg p-4 bg-white hover:shadow-xl transition-shadow duration-300 hover:scale-105"
             >
-              <div className="flex items-center space-x-4">
-                <img
-                  src={item.image_url}
-                  alt={item.product_name}
-                  className="w-12 h-12 object-cover rounded transition-transform duration-200 hover:scale-105"
-                />
-                <div>
-                  <p className="font-medium">{item.product_name}</p>
-                  <p className="text-sm text-gray-600">
-                    Price: ${item.price} × {item.quantity} ={" "}
-                    <strong>${(item.price * item.quantity).toFixed(2)}</strong>
-                  </p>
-                </div>
-              </div>
+              <img
+                src={item.image_url}
+                alt={item.product_name}
+                className="w-32 h-32 object-cover rounded-lg mb-3"
+              />
+              <p className="font-semibold text-center">{item.product_name}</p>
+              <p className="text-sm text-gray-600 mb-2">
+                ${item.price} × {item.quantity} ={" "}
+                <strong>${(item.price * item.quantity).toFixed(2)}</strong>
+              </p>
 
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 mb-2">
                 <button
                   onClick={() => handleUpdate(item.id, item.quantity + 1)}
                   disabled={item.quantity >= item.stock}
-                  className="px-2 py-1 bg-green-500 text-white rounded disabled:opacity-50"
+                  className="px-3 py-1 bg-green-500 text-white rounded disabled:opacity-50 hover:bg-green-600 transition-colors"
                 >
                   +
                 </button>
                 <button
                   onClick={() => handleUpdate(item.id, item.quantity - 1)}
                   disabled={item.quantity <= 1}
-                  className="px-2 py-1 bg-yellow-500 text-white rounded disabled:opacity-50"
+                  className="px-3 py-1 bg-yellow-500 text-white rounded disabled:opacity-50 hover:bg-yellow-600 transition-colors"
                 >
                   -
                 </button>
                 <button
                   onClick={() => handleRemove(item.id)}
-                  className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-200"
+                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
                 >
                   Remove
                 </button>
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
 
       {cart.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold">
+        <div className="mt-6 text-center">
+          <h2 className="text-xl font-semibold">
             Total: <span className="text-blue-600">${total.toFixed(2)}</span>
           </h2>
           <button
             onClick={handleCheckout}
-            disabled={cart.length === 0 || loadingCheckout}
-            className={`mt-3 px-4 py-2 rounded text-white ${
-              cart.length === 0 || loadingCheckout
+            disabled={loadingCheckout}
+            className={`mt-3 px-6 py-2 rounded text-white ${
+              loadingCheckout
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"
             }`}
