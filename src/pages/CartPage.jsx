@@ -20,7 +20,7 @@ export default function CartPage({ user }) {
     try {
       const data = await getCartItems(user.username);
       if (data.error) throw new Error(data.error);
-      setCart(data); // data = { items, total, total_price }
+      setCart(data.items || []); // data = { items, total, total_price }
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch cart");
