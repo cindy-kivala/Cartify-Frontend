@@ -1,10 +1,8 @@
-// src/pages/HomePage.jsx
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { getProducts } from "../services/api";
+import { getProducts, addToCart } from "../services/api";
 
-
-export default function HomePage({ user, handleAddToCart }) {
+export default function HomePage({ user }) {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -56,12 +54,35 @@ export default function HomePage({ user, handleAddToCart }) {
             <h2 className="product-name glow">{product.name}</h2>
             <p className="product-price glow">${product.price.toFixed(2)}</p>
 
+            {product.description && (
+              <p style={{ fontSize: "0.9rem", color: "#ddd", margin: "8px 0" }}>
+                {product.description}
+              </p>
+            )}
+
+            {product.stock !== undefined && (
+              <p
+                style={{
+                  fontSize: "0.85rem",
+                  color: product.stock > 0 ? "#0f0" : "#f00",
+                }}
+              >
+                {product.stock > 0 ? `In stock: ${product.stock}` : "Out of stock"}
+              </p>
+            )}
+
             <button
               className="btn btn-primary"
               style={{ marginTop: "12px", width: "100%" }}
-              onClick={() => {
+              onClick={async () => {
                 if (!user) return toast.error("Please log in first");
-                handleAddToCart(product.id);
+                try {
+                  await addToCart(product.id, user.username);
+                  toast.success("Added to cart!");
+                } catch (err) {
+                  console.error(err);
+                  toast.error("Failed to add to cart");
+                }
               }}
               disabled={product.stock <= 0}
             >

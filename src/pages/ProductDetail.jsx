@@ -1,12 +1,9 @@
-// src/pages/ProductDetail.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { getProductById } from "../services/api";
-import { addToCart } from "../services/api";
+import { getProductById, addToCart } from "../services/api";
 
-
-export default function ProductDetail({ addToCart }) {
+export default function ProductDetail({ user }) {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,7 +26,6 @@ export default function ProductDetail({ addToCart }) {
   if (loading) return <h2 className="glow">Loading product...</h2>;
   if (!product) return <h2 className="glow">Product not found</h2>;
 
-
   return (
     <div className="page-container" style={{ padding: "24px" }}>
       <div
@@ -45,7 +41,6 @@ export default function ProductDetail({ addToCart }) {
           flexWrap: "wrap",
         }}
       >
-        {/* Product image */}
         <img
           src={product.image_url}
           alt={product.name}
@@ -58,7 +53,6 @@ export default function ProductDetail({ addToCart }) {
           }}
         />
 
-        {/* Product info */}
         <div style={{ flex: 1, minWidth: "250px" }}>
           <h1 className="product-name glow">{product.name}</h1>
           <p className="product-price glow" style={{ fontSize: "1.5rem" }}>
@@ -106,8 +100,17 @@ export default function ProductDetail({ addToCart }) {
           <button
             className="btn btn-primary"
             style={{ marginTop: "20px", padding: "10px 20px" }}
-            onClick={() => addToCart(product.id, currentUser.username)}
-            disabled={product.stock <= 0} // ✅ disable button
+            onClick={async () => {
+              if (!user) return toast.error("Please log in first");
+              try {
+                await addToCart(product.id, user.username);
+                toast.success("Added to cart!");
+              } catch (err) {
+                console.error(err);
+                toast.error("Failed to add to cart");
+              }
+            }}
+            disabled={product.stock <= 0}
           >
             {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
           </button>

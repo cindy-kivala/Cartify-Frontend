@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
-import  { getOrders, deleteOrderById, API_URL  } from "../services/api";
+import { getOrders, deleteOrderById } from "../services/api";
 
 export default function Orders({ user }) {
   const [orders, setOrders] = useState([]);
@@ -13,7 +12,7 @@ export default function Orders({ user }) {
 
   const fetchOrders = async () => {
     try {
-      const data = await getOrders(user.id);
+      const data = await getOrders(user.username); // ✅ use username
       setOrders(data);
     } catch (err) {
       console.error(err);
@@ -61,7 +60,7 @@ export default function Orders({ user }) {
                 className="btn btn-delete" 
                 onClick={() => handleDeleteOrder(order.id)}
               >
-              Delete Order
+                Delete Order
               </button>
             </div>
           ))}

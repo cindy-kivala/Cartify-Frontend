@@ -1,18 +1,16 @@
-// src/pages/CartPage.jsx
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { 
-  getCartItems, 
-  addCartItem, 
-  updateCartItem, 
-  deleteCartItem, 
-  checkoutCart 
+import {
+  getCartItems,
+  addToCart,
+  updateCartItem,
+  deleteCartItem,
+  checkoutCart,
 } from "../services/api";
 
 export default function CartPage({ user }) {
   const [cart, setCart] = useState([]);
-  
-  // Fetch cart items on mount or when user changes
+
   useEffect(() => {
     if (!user) return;
     fetchCart();
@@ -20,43 +18,18 @@ export default function CartPage({ user }) {
 
   const fetchCart = async () => {
     try {
-      const res = await getCartItems(user.username); // or user.id depending on backend
-      setCart(res); // res is already parsed JSON
+      const res = await getCartItems(user.username);
+      setCart(res);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch cart");
     }
   };
 
-  // Add item to cart
-  const handleAddToCart = async (productId, quantity = 1) => {
-    if (!user) return toast.error("Please log in first");
-
-    try {
-      const existingItem = cart.find(item => item.product_id === productId);
-
-      if (existingItem) {
-        // Update quantity if item exists
-        const updated = await updateCartItem(existingItem.id, existingItem.quantity + quantity);
-        setCart(prev => prev.map(item => (item.id === updated.id ? updated : item)));
-        toast.success("Updated quantity in cart!");
-      } else {
-        // Add new item if it doesn't exist
-        const newItem = await addCartItem(user.username, { product_id: productId, quantity });
-        setCart(prev => [...prev, newItem]);
-        toast.success("Added to cart!");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to add to cart");
-    }
-  };
-
-  // Remove item from cart
   const removeItem = async (id) => {
     try {
       await deleteCartItem(id);
-      setCart(prev => prev.filter(item => item.id !== id));
+      setCart((prev) => prev.filter((item) => item.id !== id));
       toast.success("Item removed from cart");
     } catch (err) {
       console.error(err);
@@ -64,12 +37,13 @@ export default function CartPage({ user }) {
     }
   };
 
-  // Update quantity
   const updateQuantity = async (id, newQuantity) => {
     if (newQuantity < 1) return;
     try {
-      const updatedItem = await updateCartItem(id, newQuantity); // pass number directly
-      setCart(prev => prev.map(item => (item.id === id ? updatedItem : item)));
+      const updatedItem = await updateCartItem(id, newQuantity);
+      setCart((prev) =>
+        prev.map((item) => (item.id === id ? updatedItem : item))
+      );
       toast.success("Quantity updated");
     } catch (err) {
       console.error(err);
@@ -77,7 +51,6 @@ export default function CartPage({ user }) {
     }
   };
 
-  // Checkout
   const checkout = async () => {
     if (!user) return toast.error("Please log in first");
     if (cart.length === 0) return toast.error("Cart is empty");
@@ -100,7 +73,7 @@ export default function CartPage({ user }) {
         <p>Your cart is empty</p>
       ) : (
         <div style={{ display: "grid", gap: "12px" }}>
-          {cart.map(item => (
+          {cart.map((item) => (
             <div
               key={item.id}
               style={{
@@ -112,15 +85,31 @@ export default function CartPage({ user }) {
                 borderRadius: "8px",
               }}
             >
-              <div>
-                <strong>{item.product_name}</strong> <br />
-                ${item.price.toFixed(2)}
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <img
+                  src={item.image_url}
+                  alt={item.product_name}
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    objectFit: "cover",
+                    borderRadius: "6px",
+                  }}
+                />
+                <div>
+                  <strong>{item.product_name}</strong> <br />
+                  ${item.price.toFixed(2)}
+                </div>
               </div>
 
               <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
+                <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+                  -
+                </button>
                 <span>{item.quantity}</span>
-                <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                  +
+                </button>
                 <button onClick={() => removeItem(item.id)}>Remove</button>
               </div>
             </div>

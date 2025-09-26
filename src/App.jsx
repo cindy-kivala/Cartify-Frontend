@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import toast from "react-hot-toast";
-import { Toaster } from "react-hot-toast";
-import { getCartItems, addCartItem, updateCartItem, deleteCartItem, checkoutCart } from "./services/api";
+import toast, { Toaster } from "react-hot-toast";
+import {
+  getCartItems,
+  addToCart,
+  updateCartItem,
+  deleteCartItem,
+  checkoutCart,
+} from "./services/api";
 
 import NavBar from "./components/NavBar";
 import HomePage from "./pages/HomePage";
@@ -20,7 +25,7 @@ function App() {
 
   const handleLogout = () => setUser(null);
 
-  //fetch cart
+  // fetch cart on login
   useEffect(() => {
     if (!user) return;
     fetchCart();
@@ -28,7 +33,7 @@ function App() {
 
   const fetchCart = async () => {
     try {
-      const res = await getCartItems(user.id);
+      const res = await getCartItems(user.username);
       setCart(res);
     } catch (err) {
       console.error(err);
@@ -36,25 +41,27 @@ function App() {
     }
   };
 
-
-
-  // ✅ unified handleAddToCart for both HomePage and ProductsPage
+  // ✅ unified add-to-cart logic
   const handleAddToCart = async (productId, quantity = 1) => {
     if (!user) return toast.error("Please log in first");
 
     try {
-       const existingItem = cart.find(item => item.product_id === productId);
+      const existingItem = cart.find((item) => item.product_id === productId);
 
       if (existingItem) {
-        // Update quantity if exists
-        const updated = await updateCartItem(existingItem.id, existingItem.quantity + quantity);
-        setCart(prev =>
-          prev.map(item => (item.id === updated.id ? updated : item))
+        // Update quantity
+        const updated = await updateCartItem(
+          existingItem.id,
+          existingItem.quantity + quantity
+        );
+        setCart((prev) =>
+          prev.map((item) => (item.id === updated.id ? updated : item))
         );
         toast.success("Updated quantity in cart!");
       } else {
-        const newItem = await addCartItem(user.id, { product_id: productId, quantity });
-        setCart(prev => [...prev, newItem]);
+        // Add new item
+        const newItem = await addToCart(productId, user.username, quantity);
+        setCart((prev) => [...prev, newItem]);
         toast.success("Added to cart!");
       }
     } catch (err) {
@@ -67,14 +74,23 @@ function App() {
     <BrowserRouter>
       <NavBar user={user} onLogout={handleLogout} />
       <Routes>
-        {/* ✅ Pass handleAddToCart to HomePage */}
-        <Route path="/" element={<HomePage user={user} handleAddToCart={handleAddToCart} />} />
+        {/* Home */}
+        <Route
+          path="/"
+          element={<HomePage user={user} handleAddToCart={handleAddToCart} />}
+        />
+
+        {/* Cart */}
         <Route path="/cart" element={<CartPage user={user} />} />
+
+        {/* Orders */}
         <Route path="/orders" element={<OrdersPage user={user} />} />
+
+        {/* Auth */}
         <Route path="/login" element={<LoginPage onLogin={setUser} />} />
         <Route path="/signup" element={<SignupPage onLogin={setUser} />} />
 
-        {/* Products listing & detail routes */}
+        {/* Products */}
         <Route
           path="/products"
           element={<ProductsPage onAddToCart={handleAddToCart} />}
@@ -84,7 +100,7 @@ function App() {
           element={<ProductDetail addToCart={handleAddToCart} />}
         />
 
-        {/* Add Product route */}
+        {/* Add Product */}
         <Route path="/add-product" element={<ProductForm />} />
       </Routes>
 

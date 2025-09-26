@@ -1,15 +1,11 @@
-// src/pages/ProductsPage.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import axios from "axios";
-import { getProducts } from "../services/api";
-import { addCartItem } from "../services/api";
+import { getProducts, addToCart } from "../services/api";
 
-export default function ProductsPage({ user, onAddToCart }) {
+export default function ProductsPage({ user }) {
   const [products, setProducts] = useState([]);
 
-  
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -22,7 +18,6 @@ export default function ProductsPage({ user, onAddToCart }) {
     };
     fetchProducts();
   }, []);
-
 
   return (
     <div className="page-container" style={{ padding: "24px" }}>
@@ -102,9 +97,15 @@ export default function ProductsPage({ user, onAddToCart }) {
             <button
               className="btn btn-primary"
               style={{ marginTop: "12px", width: "100%" }}
-              onClick={() => {
+              onClick={async () => {
                 if (!user) return toast.error("Please log in first");
-                addToCart(product.id, currentUser.username)
+                try {
+                  await addToCart(product.id, user.username);
+                  toast.success("Added to cart!");
+                } catch (err) {
+                  console.error(err);
+                  toast.error("Failed to add to cart");
+                }
               }}
               disabled={product.stock <= 0}
             >

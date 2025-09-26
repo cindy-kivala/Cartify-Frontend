@@ -45,14 +45,14 @@ export const signupUser = (data) =>
 export const getCartItems = (username) =>
   fetch(`${API_URL}/cart/${username}`).then(res => res.json());
 
-export const addCartItem = async (productId, username) => {
+export const addToCart = async (productId, username) => {
   const res = await fetch(`${API_URL}/cart`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      username: username,  
+      username,
       product_id: productId,
-      quantity: 1           
+      quantity: 1,
     }),
   });
 
@@ -64,7 +64,6 @@ export const addCartItem = async (productId, username) => {
   return res.json();
 };
 
-
 export const updateCartItem = (id, quantity) =>
   fetch(`${API_URL}/cart/${id}`, {
     method: "PATCH",
@@ -73,20 +72,20 @@ export const updateCartItem = (id, quantity) =>
   }).then(res => res.json());
 
 export const deleteCartItem = (id) =>
-  fetch(`${API_URL}/cart/${id}`, { method: "DELETE" })
-    .then(res => res.json());
+  fetch(`${API_URL}/cart/${id}`, { method: "DELETE" }).then(res => res.json());
 
 export const checkoutCart = (username) =>
-  fetch(`${API_URL}/checkout/${username}`, { method: "POST" })
-    .then(res => res.json());
+  fetch(`${API_URL}/checkout/${username}`, { method: "POST" }).then(res => res.json());
 
 // -------------------- Orders --------------------
-export const getOrders = (username) =>
-  fetch(`${API_URL}/orders/${username}`).then(res => res.json());
+// Fetch all orders for a given username
+export const getOrders = async (username) => {
+  const res = await fetch(`${API_URL}/orders/${username}`);
+  if (!res.ok) return []; // username not found
+  return res.json();
+};
 
-export const getOrderById = (orderId) =>
-  fetch(`${API_URL}/orders/${orderId}`).then(res => res.json());
-
+// Create a new order
 export const createOrder = (order) =>
   fetch(`${API_URL}/orders`, {
     method: "POST",
@@ -94,6 +93,7 @@ export const createOrder = (order) =>
     body: JSON.stringify(order),
   }).then(res => res.json());
 
+// Delete an order by ID
 export const deleteOrderById = (orderId) =>
   fetch(`${API_URL}/orders/${orderId}`, {
     method: "DELETE",
