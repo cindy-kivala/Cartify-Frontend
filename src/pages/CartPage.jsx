@@ -74,7 +74,7 @@ export default function CartPage({ user }) {
     <div className="page-container" style={{ padding: "24px" }}>
       <h1 className="page-title glow">Your Cart</h1>
 
-      {cart.items.length === 0 ? (
+      {cart.length === 0 ? (
         <p className="text-muted">Cart is empty</p>
       ) : (
         <div style={{ display: "grid", gap: "20px" }}>
