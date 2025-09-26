@@ -70,8 +70,17 @@ export const updateCartItem = (itemId, quantity) =>
 export const removeCartItem = (itemId) =>
   fetchJSON(`/cart/item/${itemId}`, { method: "DELETE" });
 
-export const checkoutCart = (username) =>
-  fetchJSON(`/cart/checkout/${username}`, { method: "POST" });
+export async function checkoutCart(username) {
+  const res = await fetch(`${API_URL}/checkout/${username}`, {
+    method: "POST",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to checkout");
+  }
+
+  return res.json();
+};
 
 // ---------------- ORDERS ----------------
 export const getOrders = (username) => fetchJSON(`/orders/${username}`);
