@@ -133,8 +133,8 @@ Cartify-Backend/
 - cd Cartify-Backend
 - pip install -r requirements.txt
 - flask db upgrade
-- python server/seed.py
-- flask run
+- python server/seed.py/python -m server.seed
+- flask run/python -m server.app
 
 ### Frontend Setup
 - cd Cartify-Frontend
