@@ -26,7 +26,7 @@ export default function CartPage({ user }) {
   // Add item to cart
   const addToCart = async (productId, quantity = 1) => {
     try {
-      const res = await fetch(`${API_URL}/cart`, {
+      const res = await fetch(`${API_URL}/cart/`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
