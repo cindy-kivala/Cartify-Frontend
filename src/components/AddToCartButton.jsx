@@ -23,8 +23,9 @@ export default function AddToCartButton({ user, productId, stock, onAdded }) {
     }
 
     try {
-      const res = await fetch(`${API_URL}/cart`, {
+      const res = await fetch(`${API_URL}/cart/`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: user.id,
