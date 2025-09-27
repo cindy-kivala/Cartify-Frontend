@@ -23,7 +23,8 @@ export const getCartItems = async (userId) => {
   catch (err) {
     console.error("getCartItems error:", err);
     return [];};
-
+  }
+  
 // Add item to cart using username (Flask expects 'userId' not 'username')
 /**
  * Add an item to the cart for a user.
