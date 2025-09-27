@@ -108,14 +108,20 @@ export default function CartPage({ user }) {
   }
 
   return (
-  <div className="max-w-5xl mx-auto p-6">
-    <h1 className="text-3xl font-bold mb-6 text-center">Your Cart</h1>
+  <div className="max-w-5xl mx-auto p-6 min-h-screen bg-gradient-to-br from-[#0a0a0f] to-[#1a1a2e]">
+    <h1 className="page-title text-center mb-8">Your Cart</h1>
+
+    {cart.length === 0 && (
+      <div className="text-center py-12">
+        <p className="text-text-muted text-lg">Your cart is empty</p>
+      </div>
+    )}
 
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
       {cart.map((item) => (
         <div
           key={item.id}
-          className="flex flex-col sm:flex-row justify-between items-center p-4 border rounded-lg bg-white shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+          className="flex flex-col sm:flex-row justify-between items-center p-4 bg-card-glass border border-transparent rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1"
         >
           {/* Product Image */}
           {item.image_url && (
@@ -129,9 +135,9 @@ export default function CartPage({ user }) {
 
           {/* Product Details */}
           <div className="flex-1 ml-0 sm:ml-4 mt-2 sm:mt-0">
-            <p className="font-semibold text-lg">{item.product_name}</p>
-            <p className="text-gray-600">${item.price ? item.price.toFixed(2) : '0.00'}</p>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="font-semibold text-lg text-text-light">{item.product_name}</p>
+            <p className="text-accent-neon-green font-bold">${item.price ? item.price.toFixed(2) : '0.00'}</p>
+            <p className="text-text-muted text-sm mt-1">
               Subtotal: ${((item.price || 0) * item.quantity).toFixed(2)}
             </p>
           </div>
@@ -142,14 +148,16 @@ export default function CartPage({ user }) {
               <button
                 onClick={() => handleUpdate(item.id, item.quantity - 1)}
                 disabled={item.quantity <= 1}
-                className="px-4 py-1 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 hover:scale-110 transition transform disabled:opacity-50"
+                className="px-4 py-1 bg-accent-neon-blue text-black font-bold rounded-lg hover:scale-110 hover:shadow-lg transition transform disabled:opacity-50"
               >
                 -
               </button>
-              <span className="px-4 py-1 border rounded-lg text-center font-medium">{item.quantity}</span>
+              <span className="px-4 py-1 border rounded-lg text-center font-medium text-text-light">
+                {item.quantity}
+              </span>
               <button
                 onClick={() => handleUpdate(item.id, item.quantity + 1)}
-                className="px-4 py-1 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 hover:scale-110 transition transform"
+                className="px-4 py-1 bg-accent-neon-blue text-black font-bold rounded-lg hover:scale-110 hover:shadow-lg transition transform"
               >
                 +
               </button>
@@ -157,7 +165,7 @@ export default function CartPage({ user }) {
 
             <button
               onClick={() => handleRemove(item.id)}
-              className="bg-red-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-700 hover:scale-105 transition transform shadow-md"
+              className="bg-accent-neon-pink text-black px-5 py-2 rounded-lg font-semibold hover:scale-105 hover:shadow-lg transition transform"
             >
               Remove
             </button>
@@ -167,17 +175,19 @@ export default function CartPage({ user }) {
     </div>
 
     {/* Cart Total and Checkout */}
-    <div className="mt-8 flex justify-end items-center space-x-6">
-      <p className="text-xl font-bold">
-        Total: ${cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0).toFixed(2)}
-      </p>
-      <button
-        onClick={handleCheckout}
-        className="bg-green-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-600 hover:scale-105 transition transform shadow-md"
-      >
-        Checkout
-      </button>
-    </div>
+    {cart.length > 0 && (
+      <div className="mt-8 flex justify-end items-center space-x-6">
+        <p className="text-xl font-bold text-accent-neon-green">
+          Total: ${cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0).toFixed(2)}
+        </p>
+        <button
+          onClick={handleCheckout}
+          className="btn btn-primary px-6 py-3 hover:scale-105"
+        >
+          Checkout
+        </button>
+      </div>
+    )}
   </div>
 );
 

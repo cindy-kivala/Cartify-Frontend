@@ -52,24 +52,31 @@ export default function OrdersPage({ user }) {
   }
 
   return (
-  <div className="max-w-4xl mx-auto p-4">
-    <h1 className="text-2xl font-bold mb-6 text-center">Your Orders</h1>
+  <div className="max-w-4xl mx-auto p-4 min-h-screen bg-gradient-to-br from-[#0a0a0f] to-[#1a1a2e]">
+    <h1 className="page-title text-center mb-8">Your Orders</h1>
+
+    {orders.length === 0 && (
+      <div className="text-center py-12">
+        <p className="text-text-muted text-lg">You have no orders yet.</p>
+      </div>
+    )}
+
     <div className="space-y-6">
       {orders.map((order) => (
         <div
           key={order.id}
-          className="border rounded-lg p-6 bg-white shadow-md hover:shadow-xl transition transform hover:-translate-y-1"
+          className="border border-transparent rounded-xl p-6 bg-card-glass shadow-md hover:shadow-xl transition transform hover:-translate-y-1"
         >
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">Order #{order.id}</h2>
-            <p className="text-gray-600">{new Date(order.created_at).toLocaleDateString()}</p>
+            <h2 className="text-lg font-semibold text-text-light">Order #{order.id}</h2>
+            <p className="text-text-muted">{new Date(order.created_at).toLocaleDateString()}</p>
           </div>
           
           <div className="space-y-2 mb-4">
             {order.items.map((item) => (
               <div
                 key={item.id}
-                className="flex justify-between items-center py-2 border-b border-gray-100"
+                className="flex justify-between items-center py-2 border-b border-gray-700"
               >
                 <div className="flex items-center space-x-3">
                   {item.image_url && (
@@ -81,23 +88,26 @@ export default function OrdersPage({ user }) {
                     />
                   )}
                   <div>
-                    <span className="font-medium">{item.product}</span>
-                    <span className="text-gray-600 ml-2">x {item.quantity}</span>
+                    <span className="font-medium text-text-light">{item.product}</span>
+                    <span className="text-text-muted ml-2">x {item.quantity}</span>
                   </div>
                 </div>
-                <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                <span className="font-medium text-accent-neon-green">
+                  ${(item.price * item.quantity).toFixed(2)}
+                </span>
               </div>
             ))}
           </div>
           
-          <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-            <span className="text-lg font-semibold">Total:</span>
-            <span className="text-lg font-bold text-green-600">${order.total.toFixed(2)}</span>
+          <div className="flex justify-between items-center pt-2 border-t border-gray-700">
+            <span className="text-lg font-semibold text-text-light">Total:</span>
+            <span className="text-lg font-bold text-accent-neon-green">${order.total.toFixed(2)}</span>
           </div>
         </div>
       ))}
     </div>
   </div>
 );
+
 
 }
