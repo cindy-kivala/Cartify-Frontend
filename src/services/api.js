@@ -65,7 +65,7 @@ export const addProduct = async (productData) => {
 
 // ------------------ Cart ------------------
 
-// Get cart items for a user
+// Get cart items for a user - FIXED to match backend response
 export const getCartItems = async (userId) => {
   const res = await fetch(`${API_URL}/cart/user/${userId}`, {
     headers: { "Content-Type": "application/json" },
@@ -74,11 +74,11 @@ export const getCartItems = async (userId) => {
   if (!res.ok) throw new Error("Failed to fetch cart");
 
   const data = await res.json();
-  // Ensure cart_items is always an array
-  return data.cart_items || [];
+  // Backend returns {items: [...], total_quantity: ..., total_price: ...}
+  return data.items || [];
 };
 
-// Add item to cart
+// Add item to cart - FIXED URL
 export const addCartItem = async (userId, productId, quantity = 1) => {
   const res = await fetch(`${API_URL}/cart/`, {
     method: "POST",
@@ -95,9 +95,9 @@ export const addCartItem = async (userId, productId, quantity = 1) => {
   return await res.json();
 };
 
-// Remove item from cart
+// Remove item from cart - FIXED URL to match backend
 export const removeCartItem = async (cartItemId) => {
-  const res = await fetch(`${API_URL}/cart/${cartItemId}`, {
+  const res = await fetch(`${API_URL}/cart/item/${cartItemId}`, {
     method: "DELETE",
     credentials: "include",
   });
@@ -110,9 +110,9 @@ export const removeCartItem = async (cartItemId) => {
   return await res.json();
 };
 
-// Update cart item quantity
+// Update cart item quantity - FIXED URL to match backend
 export const updateCartItem = async (cartItemId, quantity) => {
-  const res = await fetch(`${API_URL}/cart/${cartItemId}`, {
+  const res = await fetch(`${API_URL}/cart/item/${cartItemId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ quantity }),
@@ -127,9 +127,9 @@ export const updateCartItem = async (cartItemId, quantity) => {
   return await res.json();
 };
 
-// Checkout
-export const checkoutCart = async (username) => {
-  const res = await fetch(`${API_URL}/cart/checkout/${username}`, {
+// Checkout - FIXED to use user_id instead of username
+export const checkoutCart = async (userId) => {
+  const res = await fetch(`${API_URL}/cart/checkout/${userId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -177,7 +177,6 @@ export const updateUser = async (userId, data) => {
   return await res.json();
 };
 
-
 // ------------------ Orders ------------------
 
 // Get all orders
@@ -221,5 +220,3 @@ export const deleteOrder = async (orderId) => {
   if (!res.ok) throw new Error("Failed to delete order");
   return await res.json();
 };
-
-
