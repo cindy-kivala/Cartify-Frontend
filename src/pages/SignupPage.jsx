@@ -17,18 +17,26 @@ export default function Signup({ onLogin }) {
   });
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    try {
-      const userData = await signupUser(values);
-      onLogin(userData);
-      toast.success("Signup successful!");
-      navigate("/");
-    } catch (err) {
-      console.error(err);
-      toast.error(err.message || "Signup failed");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  try {
+    const data = await signupUser(values);
+
+    // Store full user info including id
+    onLogin({
+      id: data.id,
+      username: data.username,
+      email: data.email,
+    });
+
+    toast.success("Signup successful!");
+    navigate("/");
+  } catch (err) {
+    console.error(err);
+    toast.error(err.message || "Signup failed");
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   return (
     <div

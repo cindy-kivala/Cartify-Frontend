@@ -3,7 +3,7 @@ import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import toast from "react-hot-toast";
-import { createProduct } from "../services/api";
+import { addProduct } from "../services/api";
 
 export default function ProductForm() {
   const initialValues = {
@@ -29,7 +29,7 @@ export default function ProductForm() {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      const newProduct = await createProduct({ ...values, price: parseFloat(values.price) });
+      const newProduct = await addProduct({ ...values, price: parseFloat(values.price) });
       if (newProduct.error) throw new Error(newProduct.error);
 
       toast.success(`Product "${newProduct.name}" added successfully!`);

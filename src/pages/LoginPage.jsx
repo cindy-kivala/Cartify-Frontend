@@ -16,18 +16,26 @@ export default function Login({ onLogin }) {
   });
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    try {
-      const data = await loginUser(values); // api call
-      onLogin(data);
-      toast.success(`Welcome back, ${data.username}!`);
-      navigate("/");
-    } catch (err) {
-      console.error(err);
-      toast.error(err.message || "Invalid credentials");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+   try {
+     const data = await loginUser(values); // API call
+
+    // Store full user info including id
+     onLogin({
+       id: data.id,
+       username: data.username,
+       email: data.email,
+     });
+
+     toast.success(`Welcome back, ${data.username}!`);
+     navigate("/");
+   } catch (err) {
+     console.error(err);
+     toast.error(err.message || "Invalid credentials");
+   } finally {
+     setSubmitting(false);
+   }
+ };
+
 
   return (
     <div className="page-container" style={{ padding: "24px", maxWidth: "400px", margin: "auto" }}>

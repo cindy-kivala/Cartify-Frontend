@@ -13,7 +13,7 @@ export default function Orders({ user }) {
 
   const fetchOrders = async () => {
     try {
-      const data = await getOrders(user.username);
+      const data = await getOrders(user.user_id);
       setOrders(data);
     } catch (err) {
       console.error(err);

@@ -16,7 +16,7 @@ export default function CartPage({ user }) {
     }
     setLoading(true);
     try {
-      const data = await getCartItems(user.username);
+      const data = await getCartItems(user.id);
       setCart(data || []);
     } catch {
       toast.error("Failed to load cart items");
@@ -40,7 +40,7 @@ export default function CartPage({ user }) {
   const handleCheckout = async () => {
     if (!user) return toast.error("Please log in first");
     try {
-      await checkoutCart(user.username);
+      await checkoutCart(user.id);
       setCart([]);
       toast.success("Checkout successful");
     } catch {

@@ -1,24 +1,51 @@
 // src/components/AddToCartButton.jsx
-import toast from "react-hot-toast";
-import { addCartItem } from "../services/api";
+import React from "react";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function AddToCartButton({ user, productId, stock, onAdded }) {
   const handleClick = async () => {
-    if (!user) return toast.error("Please log in first");
-    if (stock <= 0) return;
+    console.log("AddToCartButton: user =", user);
+    console.log("AddToCartButton: productId =", productId);
+
+    if (!user) {
+      alert("Please log in first");
+      return;
+    }
+    if (!user.id) {
+      console.error("AddToCartButton: user.id is missing!");
+      alert("Error: User ID is missing");
+      return;
+    }
+    if (stock <= 0) {
+      alert("Out of stock");
+      return;
+    }
 
     try {
-      const res = await addCartItem(user.id, productId, 1);
+      const res = await fetch(`${API_URL}/cart`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.id,
+          product_id: productId,
+          quantity: 1,
+        }),
+      });
 
-      if (res?.error) {
-        toast.error(res.error);
+      const data = await res.json();
+
+      console.log("AddToCartButton: server response =", data);
+
+      if (!res.ok) {
+        alert(data.error || "Failed to add to cart");
       } else {
-        toast.success("Added to cart!");
-        if (onAdded) onAdded(); // optional callback for parent state update
+        alert("Added to cart!");
+        if (onAdded) onAdded();
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to add to cart");
+      console.error("AddToCartButton: fetch error", err);
+      alert("Failed to add to cart");
     }
   };
 
@@ -26,16 +53,18 @@ export default function AddToCartButton({ user, productId, stock, onAdded }) {
     <button
       onClick={handleClick}
       disabled={stock <= 0}
-      className={`mt-2 w-full px-4 py-2 font-semibold rounded transition ${
-        stock > 0
-          ? "bg-blue-600 hover:bg-blue-700 text-white"
-          : "bg-gray-400 cursor-not-allowed text-gray-200"
-      }`}
-      aria-label={stock > 0 ? "Add to Cart" : "Out of Stock"}
+      style={{
+        marginTop: "12px",
+        width: "100%",
+        padding: "10px",
+        backgroundColor: stock > 0 ? "#007bff" : "#ccc",
+        color: stock > 0 ? "#fff" : "#666",
+        border: "none",
+        borderRadius: "6px",
+        cursor: stock > 0 ? "pointer" : "not-allowed",
+      }}
     >
       {stock > 0 ? "Add to Cart" : "Out of Stock"}
     </button>
   );
 }
-
-

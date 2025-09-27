@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import NavBar from "./components/NavBar";
+import UsersPage from "./pages/UsersPage";
 import HomePage from "./pages/HomePage";
 import CartPage from "./pages/CartPage";
 import OrdersPage from "./pages/OrdersPage";
@@ -18,18 +19,23 @@ function App() {
   const handleLogout = () => setUser(null);
 
   const handleAddToCart = async (productId) => {
-    if (!user) return toast.error("Please log in first");
+  if (!user || !user.id ) {
+     toast.error("Please log in first");
+     return;
+  }
 
-    try {
-      const res = await addCartItem(user.id, productId, 1);
-      if (res?.error) return toast.error(res.error);
+  try {
+    // Send username instead of user.id to match Flask backend
+    const res = await addCartItem(user.id, productId, 1);
+    if (res?.error) return toast.error(res.error);
 
-      toast.success("Added to cart!");
-    } catch (err) {
-      console.error("Add to cart error:", err);
-      toast.error("Failed to add to cart");
-    }
-  };
+    toast.success("Added to cart!");
+  } catch (err) {
+    console.error("Add to cart error:", err);
+    toast.error("Failed to add to cart");
+  }
+};
+
 
   // Example of protected route
   const ProtectedRoute = ({ children }) => {
@@ -62,6 +68,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/users" element={<UsersPage />} />
           <Route path="/login" element={<LoginPage onLogin={setUser} />} />
           <Route path="/signup" element={<SignupPage onLogin={setUser} />} />
           <Route
