@@ -24,7 +24,6 @@ export default function AddToCartButton({ user, productId, stock, onAdded }) {
     try {
       const data = await addCartItem(user.id, productId, 1);
       console.log("AddToCartButton: server response =", data);
-      alert("Added to cart!");
       if (onAdded) onAdded();
     } catch (err) {
       console.error("AddToCartButton: fetch error", err);

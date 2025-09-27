@@ -189,9 +189,9 @@ export const getOrders = async () => {
   return await res.json();
 };
 
-// Get orders for a specific user
-export const getUserOrders = async (userId) => {
-  const res = await fetch(`${API_URL}/orders/user/${userId}`, {
+// Get orders for a specific user by username (matches your backend)
+export const getUserOrders = async (username) => {
+  const res = await fetch(`${API_URL}/orders/${username}`, {
     headers: { "Content-Type": "application/json" },
     credentials: "include",
   });
