@@ -4,17 +4,25 @@ const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000";
 // Get cart items for a user by username
 export const getCartItems = async (userId) => {
   try {
-    const res = await fetch(`${API_URL}/cart/user/${userId}`); // note: endpoint expects user_id
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.error || "Failed to fetch cart items");
-    }
-    return await res.json();
-  } catch (err) {
-    console.error("getCartItems error:", err);
-    return [];
+    const res = await fetch(`${API_URL}/cart/user/${user.id}`, {
+     method: "GET",
+     credentials: "include",
+     headers: { "Content-Type": "application/json" },
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch cart");
+    const data = await res.json();
+
+    // Check the structure of the response
+    console.log("cart response:", data);
+
+   // If your backend sends { cart_items: [...] }
+    setCart(data.cart_items || []); // <-- make sure it's an array
+
   }
-};
+  catch (err) {
+    console.error("getCartItems error:", err);
+    return [];};
 
 // Add item to cart using username (Flask expects 'userId' not 'username')
 /**
