@@ -1,6 +1,13 @@
 // src/components/CartItemControls.jsx
 import toast from "react-hot-toast";
-import { updateCartItem, removeCartItem } from "../services/api";
+import {
+  getCartItems,
+  addCartItem,
+  removeCartItem,
+  updateCartItem,
+  checkoutCart
+} from "../services/api";
+
 
 export default function CartItemControls({ item, onUpdate, onRemove }) {
   const handleIncrement = async () => {

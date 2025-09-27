@@ -1,80 +1,62 @@
-// src/pages/Orders.jsx
+// src/pages/OrdersPage.jsx
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { getOrders, deleteOrder as apiDeleteOrder } from "../services/api";
+import { getOrders } from "../services/api";
 
-export default function Orders({ user }) {
+export default function OrdersPage({ user }) {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchOrders = async () => {
+    if (!user || !user.id) return;
+    setLoading(true);
+    try {
+      const data = await getOrders(user.id);
+      setOrders(data || []);
+    } catch (err) {
+      console.error("OrdersPage: fetchOrders error", err);
+      toast.error("Failed to load orders");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!user) return;
     fetchOrders();
   }, [user]);
 
-  const fetchOrders = async () => {
-    try {
-      const data = await getOrders(user.user_id);
-      setOrders(data);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch orders");
-    }
-  };
+  if (loading) return <p className="text-center py-10">Loading orders...</p>;
 
-  const deleteOrder = async (id) => {
-    try {
-      await apiDeleteOrder(id);
-      setOrders((prev) => prev.filter((order) => order.id !== id));
-      toast.success("Order deleted successfully!");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete order");
-    }
-  };
+  if (orders.length === 0)
+    return <p className="text-center py-10">You have no orders yet</p>;
 
   return (
-    <div className="page-container" style={{ padding: "24px" }}>
-      <h1 className="page-title glow">My Orders</h1>
-      {orders.length === 0 ? (
-        <p className="text-muted">No orders yet</p>
-      ) : (
-        <div style={{ display: "grid", gap: "20px" }}>
-          {orders.map((order) => (
-            <div key={order.id} className="product-card">
-              <h2 className="product-name glow">Order #{order.id}</h2>
-              <p className="product-price glow">Total: ${order.total.toFixed(2)}</p>
-              <ul style={{ listStyle: "none", padding: 0 }}>
-                {order.items.map((i, idx) => (
-                  <li
-                    key={idx}
-                    style={{ marginBottom: "10px", display: "flex", alignItems: "center" }}
-                  >
-                    {i.image_url && (
-                      <img
-                        src={i.image_url}
-                        alt={i.product}
-                        style={{
-                          width: "80px",
-                          height: "80px",
-                          objectFit: "cover",
-                          borderRadius: "6px",
-                          marginRight: "10px",
-                        }}
-                      />
-                    )}
-                    <span>
-                      {i.product} × {i.quantity} — ${i.price}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <button className="btn btn-delete" onClick={() => deleteOrder(order.id)}>
-                Delete Order
-              </button>
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Your Orders</h1>
+      <ul>
+        {orders.map((order) => (
+          <li
+            key={order.id}
+            className="border rounded p-4 mb-4 bg-gray-50 shadow hover:shadow-md transition"
+          >
+            <div className="flex justify-between items-center mb-2">
+              <p className="font-semibold">Order #{order.id}</p>
+              <p className="text-gray-600">{new Date(order.created_at).toLocaleDateString()}</p>
             </div>
-          ))}
-        </div>
-      )}
+            <ul className="mb-2">
+              {order.items.map((item) => (
+                <li key={item.id} className="flex justify-between mb-1">
+                  <span>{item.product.name} x {item.quantity}</span>
+                  <span>${(item.product.price * item.quantity).toFixed(2)}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="font-bold text-right">
+              Total: ${order.total.toFixed(2)}
+            </p>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

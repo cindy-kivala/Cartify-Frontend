@@ -1,20 +1,28 @@
 // src/pages/CartPage.jsx
-import React, { useEffect, useState } from "react";
-import { getCartItems, removeCartItem, updateCartItem } from "../services/api";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import {
+  getCartItems,
+  updateCartItem,
+  removeCartItem,
+  checkoutCart,
+} from "../services/api";
 
 export default function CartPage({ user }) {
   const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch cart items for the logged-in user
   const fetchCart = async () => {
     if (!user || !user.id) return;
-
+    setLoading(true);
     try {
       const items = await getCartItems(user.id);
       setCart(items);
     } catch (err) {
       console.error("CartPage: fetchCart error", err);
-      alert("Failed to fetch cart");
+      toast.error("Failed to load cart");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -22,100 +30,90 @@ export default function CartPage({ user }) {
     fetchCart();
   }, [user]);
 
-  // Remove item from cart
   const handleRemove = async (cartItemId) => {
     try {
       await removeCartItem(cartItemId);
       setCart((prev) => prev.filter((item) => item.id !== cartItemId));
+      toast.success("Item removed");
     } catch (err) {
       console.error("CartPage: remove error", err);
-      alert("Failed to remove item");
+      toast.error("Failed to remove item");
     }
   };
 
-  // Update quantity
-  const handleUpdateQuantity = async (cartItemId, quantity) => {
-    if (quantity <= 0) return;
+  const handleUpdate = async (cartItemId, quantity) => {
+    if (quantity < 1) return;
     try {
-      await updateCartItem(cartItemId, quantity);
+      const updatedItem = await updateCartItem(cartItemId, quantity);
       setCart((prev) =>
-        prev.map((item) =>
-          item.id === cartItemId ? { ...item, quantity } : item
-        )
+        prev.map((item) => (item.id === cartItemId ? updatedItem : item))
       );
     } catch (err) {
       console.error("CartPage: update error", err);
-      alert("Failed to update quantity");
+      toast.error("Failed to update quantity");
     }
   };
 
+  const handleCheckout = async () => {
+    if (!user || !user.username) return;
+    try {
+      await checkoutCart(user.username);
+      setCart([]);
+      toast.success("Checkout successful!");
+    } catch (err) {
+      console.error("CartPage: checkout error", err);
+      toast.error("Checkout failed");
+    }
+  };
+
+  if (loading) return <p className="text-center py-10">Loading cart...</p>;
+
+  if (cart.length === 0)
+    return <p className="text-center py-10">Your cart is empty</p>;
+
   return (
-    <div style={{ maxWidth: "600px", margin: "0 auto", padding: "1rem" }}>
-      <h2>Your Cart</h2>
-      {cart.length > 0 ? (
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {cart.map((item) => (
-            <li
-              key={item.id}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "0.5rem 1rem",
-                marginBottom: "0.5rem",
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                backgroundColor: "#f9f9f9",
-              }}
-            >
-              <span>{item.product_name}</span>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <button
-                  onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                  style={{
-                    padding: "4px 8px",
-                    borderRadius: "4px",
-                    border: "1px solid #ccc",
-                    cursor: "pointer",
-                  }}
-                >
-                  -
-                </button>
-                <span>{item.quantity}</span>
-                <button
-                  onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
-                  style={{
-                    padding: "4px 8px",
-                    borderRadius: "4px",
-                    border: "1px solid #ccc",
-                    cursor: "pointer",
-                  }}
-                >
-                  +
-                </button>
-                <button
-                  onClick={() => handleRemove(item.id)}
-                  style={{
-                    padding: "4px 8px",
-                    borderRadius: "4px",
-                    border: "1px solid #f00",
-                    color: "#f00",
-                    cursor: "pointer",
-                    marginLeft: "0.5rem",
-                  }}
-                >
-                  Remove
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>Your cart is empty</p>
-      )}
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
+      <ul>
+        {cart.map((item) => (
+          <li
+            key={item.id}
+            className="flex justify-between items-center p-4 mb-2 border rounded bg-gray-50"
+          >
+            <div>
+              <p className="font-semibold">{item.product.name}</p>
+              <p>${item.product.price.toFixed(2)}</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="number"
+                value={item.quantity}
+                min={1}
+                onChange={(e) =>
+                  handleUpdate(item.id, parseInt(e.target.value))
+                }
+                className="w-16 border rounded px-2 py-1"
+              />
+              <button
+                onClick={() => handleRemove(item.id)}
+                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+              >
+                Remove
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <button
+        onClick={handleCheckout}
+        className="mt-4 w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+      >
+        Checkout
+      </button>
     </div>
   );
 }
+
 
 
 

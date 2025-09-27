@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import AddToCartButton from "../components/AddToCartButton";
 import toast from "react-hot-toast";
+import { getProducts } from "../services/api"; // uses dynamic API_URL
 
 export default function ProductsPage({ onAddToCart, user }) {
   const [products, setProducts] = useState([]);
@@ -10,8 +11,7 @@ export default function ProductsPage({ onAddToCart, user }) {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/products");
-      const data = await res.json();
+      const data = await getProducts(); // automatically uses API_URL from api.js
       setProducts(data || []);
     } catch (err) {
       console.error(err);
@@ -52,3 +52,4 @@ export default function ProductsPage({ onAddToCart, user }) {
     </div>
   );
 }
+

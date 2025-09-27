@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import toast from "react-hot-toast";
-import { loginUser } from "../services/api";
+import { login } from "../services/api";
 
 //use api.js helper
 
@@ -17,7 +17,7 @@ export default function Login({ onLogin }) {
 
   const handleSubmit = async (values, { setSubmitting }) => {
    try {
-     const data = await loginUser(values); // API call
+     const data = await login(values); // API call
 
     // Store full user info including id
      onLogin({

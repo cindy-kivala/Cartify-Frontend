@@ -1,92 +1,106 @@
-import { useEffect, useState } from "react";
-import { getUsers, deleteUser, updateUser } from "../services/api";
+// // src/pages/UsersPage.jsx
+// import { useEffect, useState } from "react";
+// import { getUsers, deleteUser, updateUser } from "../services/api";
 
-export default function UsersPage() {
-  const [users, setUsers] = useState([]);
-  const [editingUser, setEditingUser] = useState(null);
-  const [formData, setFormData] = useState({ username: "", email: "" });
+// export default function UsersPage() {
+//   const [users, setUsers] = useState([]);
+//   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+//   // Fetch users on mount
+//   useEffect(() => {
+//     const fetchUsers = async () => {
+//       try {
+//         const data = await getUsers();
+//         setUsers(data);
+//       } catch (err) {
+//         console.error("Error fetching users:", err);
+//         alert("Failed to load users");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
 
-  const fetchUsers = async () => {
-    try {
-      const data = await getUsers();
-      setUsers(data);
-    } catch (err) {
-      console.error(err);
-      alert("Error fetching users");
-    }
-  };
+//     fetchUsers();
+//   }, []);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this user?")) return;
-    try {
-      await deleteUser(id);
-      setUsers(users.filter((u) => u.id !== id));
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete user");
-    }
-  };
+//   // Delete a user
+//   const handleDelete = async (id) => {
+//     if (!confirm("Are you sure you want to delete this user?")) return;
+//     try {
+//       await deleteUser(id);
+//       setUsers(users.filter((u) => u.id !== id));
+//     } catch (err) {
+//       console.error(err);
+//       alert("Failed to delete user");
+//     }
+//   };
 
-  const handleEditClick = (user) => {
-    setEditingUser(user.id);
-    setFormData({ username: user.username, email: user.email });
-  };
+//   // Update user example (toggle isAdmin)
+//   const handleToggleAdmin = async (user) => {
+//     try {
+//       const updated = await updateUser(user.id, { isAdmin: !user.isAdmin });
+//       setUsers(users.map((u) => (u.id === user.id ? updated : u)));
+//     } catch (err) {
+//       console.error(err);
+//       alert("Failed to update user");
+//     }
+//   };
 
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    try {
-      const updated = await updateUser(editingUser, formData);
-      setUsers(users.map((u) => (u.id === editingUser ? updated : u)));
-      setEditingUser(null);
-      setFormData({ username: "", email: "" });
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update user");
-    }
-  };
+//   if (loading) return <p>Loading users...</p>;
 
-  return (
-    <div>
-      <h2>Users</h2>
-      <ul>
-        {users.map((user) => (
-          <li key={user.id}>
-            {editingUser === user.id ? (
-              <form onSubmit={handleUpdate}>
-                <input
-                  value={formData.username}
-                  onChange={(e) =>
-                    setFormData({ ...formData, username: e.target.value })
-                  }
-                  placeholder="Username"
-                  required
-                />
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  placeholder="Email"
-                  required
-                />
-                <button type="submit">Save</button>
-                <button onClick={() => setEditingUser(null)}>Cancel</button>
-              </form>
-            ) : (
-              <>
-                {user.username} ({user.email}){" "}
-                <button onClick={() => handleEditClick(user)}>Edit</button>{" "}
-                <button onClick={() => handleDelete(user.id)}>Delete</button>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+//   return (
+//     <div style={{ padding: "2rem" }}>
+//       <h1 style={{ marginBottom: "1rem" }}>Users</h1>
+//       <ul style={{ listStyle: "none", padding: 0 }}>
+//         {users.map((user) => (
+//           <li
+//             key={user.id}
+//             style={{
+//               display: "flex",
+//               justifyContent: "space-between",
+//               alignItems: "center",
+//               padding: "0.5rem 1rem",
+//               marginBottom: "0.5rem",
+//               border: "1px solid #ccc",
+//               borderRadius: "8px",
+//               backgroundColor: "#f9f9f9",
+//             }}
+//           >
+//             <span>
+//               {user.username} ({user.email}) {user.isAdmin ? "[Admin]" : ""}
+//             </span>
+//             <div>
+//               <button
+//                 onClick={() => handleToggleAdmin(user)}
+//                 style={{
+//                   marginRight: "8px",
+//                   padding: "6px 10px",
+//                   borderRadius: "4px",
+//                   border: "none",
+//                   backgroundColor: "#28a745",
+//                   color: "#fff",
+//                   cursor: "pointer",
+//                 }}
+//               >
+//                 Toggle Admin
+//               </button>
+//               <button
+//                 onClick={() => handleDelete(user.id)}
+//                 style={{
+//                   padding: "6px 10px",
+//                   borderRadius: "4px",
+//                   border: "none",
+//                   backgroundColor: "#dc3545",
+//                   color: "#fff",
+//                   cursor: "pointer",
+//                 }}
+//               >
+//                 Delete
+//               </button>
+//             </div>
+//           </li>
+//         ))}
+//       </ul>
+//     </div>
+//   );
+// }

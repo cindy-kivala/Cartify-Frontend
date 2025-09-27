@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import toast from "react-hot-toast";
-import { signupUser } from "../services/api";
+import { signup } from "../services/api";
 
 export default function Signup({ onLogin }) {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ export default function Signup({ onLogin }) {
 
   const handleSubmit = async (values, { setSubmitting }) => {
   try {
-    const data = await signupUser(values);
+    const data = await signup(values);
 
     // Store full user info including id
     onLogin({
