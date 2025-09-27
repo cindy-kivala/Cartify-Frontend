@@ -115,14 +115,14 @@ export default function CartPage({ user }) {
       {cart.map((item) => (
         <div
           key={item.id}
-          className="flex flex-col sm:flex-row justify-between items-center p-4 border rounded-lg bg-white shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1"
+          className="flex flex-col sm:flex-row justify-between items-center p-4 border rounded-lg bg-white shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
         >
           {/* Product Image */}
           {item.image_url && (
             <img
               src={item.image_url}
               alt={item.product_name}
-              className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg flex-shrink-0"
+              className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0 transition-transform duration-300 hover:scale-105"
               onError={(e) => { e.target.style.display = 'none'; }}
             />
           )}
@@ -142,14 +142,14 @@ export default function CartPage({ user }) {
               <button
                 onClick={() => handleUpdate(item.id, item.quantity - 1)}
                 disabled={item.quantity <= 1}
-                className="px-3 py-1 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 disabled:opacity-50 transition"
+                className="px-4 py-1 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 hover:scale-110 transition transform disabled:opacity-50"
               >
                 -
               </button>
               <span className="px-4 py-1 border rounded-lg text-center font-medium">{item.quantity}</span>
               <button
                 onClick={() => handleUpdate(item.id, item.quantity + 1)}
-                className="px-3 py-1 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition"
+                className="px-4 py-1 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 hover:scale-110 transition transform"
               >
                 +
               </button>
@@ -157,7 +157,7 @@ export default function CartPage({ user }) {
 
             <button
               onClick={() => handleRemove(item.id)}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition"
+              className="bg-red-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-700 hover:scale-105 transition transform shadow-md"
             >
               Remove
             </button>
@@ -173,12 +173,13 @@ export default function CartPage({ user }) {
       </p>
       <button
         onClick={handleCheckout}
-        className="bg-green-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-600 shadow-md transition transform hover:-translate-y-1"
+        className="bg-green-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-600 hover:scale-105 transition transform shadow-md"
       >
         Checkout
       </button>
     </div>
   </div>
 );
+
 
 }
