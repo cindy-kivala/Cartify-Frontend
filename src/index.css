@@ -109,7 +109,7 @@ h1, h2, h3 {
 }
 .product-card img {
   width: 100%;
-  height: 160px;  /* Uniform thumbnail size */
+  height: 200px;  /* Uniform thumbnail size */
   object-fit: cover;
   border-radius: 10px;
   display: block;
