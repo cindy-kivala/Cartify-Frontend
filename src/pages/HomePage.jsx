@@ -1,4 +1,5 @@
-src/pages/HomePage.jsx
+
+// src/pages/HomePage.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -53,7 +54,7 @@ export default function HomePage({ user, onAddToCart }) {
   return (
   <div className="p-6 min-h-screen bg-gradient-to-br from-[#0a0a0f] to-[#1a1a2e]">
     <div className="max-w-7xl mx-auto">
-      <h1 className="page-title text-center mb-8">Press each image for item details</h1>
+      <h1 className="page-title text-center mb-8">Press each image for details</h1>
 
       {products.length === 0 && (
         <div className="text-center py-12">
