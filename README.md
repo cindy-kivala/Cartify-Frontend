@@ -49,6 +49,8 @@ Cartify-Frontend/
 │ ├── services/ # API service helpers
 │ ├── components/
 │ │ └── NavBar.jsx
+  | ├──AddToCartButton.jsx
+  | ├──CartItemControls.jsx
 │ └── pages/
 │ ├── HomePage.jsx
 │ ├── ProductsPage.jsx
@@ -60,6 +62,8 @@ Cartify-Frontend/
 │ └── SignupPage.jsx
 ├── package.json
 ├── vite.config.js
+├──index.html
+├──netlify.toml
 
 ### Backend (`Cartify-Backend/`)
 Cartify-Backend/
@@ -67,15 +71,25 @@ Cartify-Backend/
 ├── server/
 │ ├── app.py # Flask entry point
 │ ├── init.py
-│ ├── models.py # SQLAlchemy models (User, Product, Order, CartItem)
-│ ├── auth.py # Authentication routes
+│ ├── models.py # SQLAlchemy models (User,Product, OrderCartItem)
+│ ├── routes/
+| |    |──auth.py # Authentication routes
+| |    ├──cart.py
+| |    ├──orders.py
+| |    ├──products.py
+| |    ├──users.py
 │ ├── seed.py # Database seeding script
 │ ├── store.db # SQLite database
 │ ├── instance/ # Flask instance config
+| ├──extensions.py
 │ └── pycache/
 ├── Pipfile
 ├── Pipfile.lock
 ├── requirements.txt
+├──.render.yaml
+├──.tables
+├──.env
+├──gitignore
 
 
 ## Database Schema
@@ -142,7 +156,7 @@ Cartify-Backend/
 
 - Email must match valid format.
 
--Password must be at least 8 characters.
+-Password must be at least 6 characters.
 
 # Product Form:
 
