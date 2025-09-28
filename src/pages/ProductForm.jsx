@@ -12,7 +12,8 @@ export default function ProductForm() {
     description: "",
     image_url: "",
     category: "",
-    brand: ""
+    brand: "",
+    stock: ""
   };
 
   const validationSchema = Yup.object({
@@ -24,12 +25,20 @@ export default function ProductForm() {
     description: Yup.string(),
     image_url: Yup.string().url("Invalid URL format"),
     category: Yup.string(),
-    brand: Yup.string()
+    brand: Yup.string(),
+    stock: Yup.number()
+      .typeError("Stock must be a number")
+      .min(0, "Stock cannot be negative")
+      .required("Stock is required")
   });
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      const newProduct = await addProduct({ ...values, price: parseFloat(values.price) });
+      const newProduct = await addProduct({ 
+        ...values, 
+        price: parseFloat(values.price),
+        stock: parseInt(values.stock)
+      });
       if (newProduct.error) throw new Error(newProduct.error);
 
       toast.success(`Product "${newProduct.name}" added successfully!`);
@@ -43,35 +52,83 @@ export default function ProductForm() {
   };
 
   return (
-    <div className="page-container" style={{ padding: "24px", maxWidth: "600px", margin: "0 auto" }}>
-      <h1 className="page-title glow">Add New Product</h1>
-      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
-        {({ isSubmitting }) => (
-          <Form style={{ display: "grid", gap: "16px" }}>
-            <Field type="text" name="name" placeholder="Product Name" />
-            <ErrorMessage name="name" component="div" className="error-msg" />
+    <div className="p-6 min-h-screen bg-gradient-to-br from-[#0a0a0f] to-[#1a1a2e]">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="page-title text-center mb-8">Add New Product</h1>
+        
+        <div className="product-card">
+          <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
+            {({ isSubmitting }) => (
+              <Form className="product-form">
+                <Field 
+                  type="text" 
+                  name="name" 
+                  placeholder="Product Name"
+                  className="form-input"
+                />
+                <ErrorMessage name="name" component="div" className="form-error" />
 
-            <Field type="number" name="price" placeholder="Price" step="0.01" />
-            <ErrorMessage name="price" component="div" className="error-msg" />
+                <Field 
+                  type="number" 
+                  name="price" 
+                  placeholder="Price" 
+                  step="0.01"
+                  className="form-input"
+                />
+                <ErrorMessage name="price" component="div" className="form-error" />
 
-            <Field type="text" name="description" placeholder="Description" />
-            <ErrorMessage name="description" component="div" className="error-msg" />
+                <Field 
+                  type="text" 
+                  name="description" 
+                  placeholder="Description"
+                  className="form-input"
+                />
+                <ErrorMessage name="description" component="div" className="form-error" />
 
-            <Field type="text" name="image_url" placeholder="Image URL" />
-            <ErrorMessage name="image_url" component="div" className="error-msg" />
+                <Field 
+                  type="text" 
+                  name="image_url" 
+                  placeholder="Image URL"
+                  className="form-input"
+                />
+                <ErrorMessage name="image_url" component="div" className="form-error" />
 
-            <Field type="text" name="category" placeholder="Category" />
-            <ErrorMessage name="category" component="div" className="error-msg" />
+                <Field 
+                  type="text" 
+                  name="category" 
+                  placeholder="Category"
+                  className="form-input"
+                />
+                <ErrorMessage name="category" component="div" className="form-error" />
 
-            <Field type="text" name="brand" placeholder="Brand" />
-            <ErrorMessage name="brand" component="div" className="error-msg" />
+                <Field 
+                  type="text" 
+                  name="brand" 
+                  placeholder="Brand"
+                  className="form-input"
+                />
+                <ErrorMessage name="brand" component="div" className="form-error" />
 
-            <button type="submit" className="btn btn-primary" style={{ marginTop: "12px" }} disabled={isSubmitting}>
-              {isSubmitting ? "Adding..." : "Add Product"}
-            </button>
-          </Form>
-        )}
-      </Formik>
+                <Field 
+                  type="number" 
+                  name="stock" 
+                  placeholder="Stock Quantity"
+                  className="form-input"
+                />
+                <ErrorMessage name="stock" component="div" className="form-error" />
+
+                <button 
+                  type="submit" 
+                  className="btn btn-primary w-full mt-4" 
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Adding..." : "Add Product"}
+                </button>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </div>
     </div>
   );
 }
