@@ -103,18 +103,18 @@ h1, h2, h3 {
   justify-content: space-between;
   height: 100%;
 }
-.product-card:hover {
-  transform: translateY(-6px) scale(1.05);
-  box-shadow: 0 0 25px var(--accent-neon-blue), 0 0 40px var(--accent-neon-pink);
-}
 .product-card img {
   width: 100%;
-  height: 200px;  /* Uniform thumbnail size */
+  height: 120px;  /* Much smaller - was 200px */
   object-fit: cover;
   border-radius: 10px;
   display: block;
 }
 
+.product-card:hover {
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0 0 25px var(--accent-neon-blue), 0 0 40px var(--accent-neon-pink);
+}
 /* Product details */
 .product-name {
   font-weight: 900;
