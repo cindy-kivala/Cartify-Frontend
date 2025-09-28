@@ -1,4 +1,3 @@
-/*
 /* ============================
    index.css — Bold Futuristic Theme
    ============================ */
@@ -97,10 +96,23 @@ h1, h2, h3 {
   padding: 22px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: var(--card-shadow);
+
+  /* 🔹 Fix: keep cards uniform height */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 .product-card:hover {
   transform: translateY(-6px) scale(1.05);
   box-shadow: 0 0 25px var(--accent-neon-blue), 0 0 40px var(--accent-neon-pink);
+}
+.product-card img {
+  width: 100%;
+  height: 160px;  /* Uniform thumbnail size */
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
 }
 
 /* Product details */

@@ -1,4 +1,4 @@
-// src/pages/HomePage.jsx  
+// src/pages/HomePage.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -32,7 +32,7 @@ export default function HomePage({ user, onAddToCart }) {
       toast.error("Please log in first");
       return;
     }
-    
+
     try {
       await onAddToCart(productId);
       toast.success("Added to cart!");
@@ -49,7 +49,7 @@ export default function HomePage({ user, onAddToCart }) {
       </div>
     );
   }
-  
+
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-[#0a0a0f] to-[#1a1a2e]">
       <div className="max-w-7xl mx-auto">
@@ -61,15 +61,16 @@ export default function HomePage({ user, onAddToCart }) {
           </div>
         )}
 
-        {/* Grid Layout with Smaller Images */}
+        {/* 🔹 Grid Layout */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((product) => (
             <div key={product.id} className="product-card">
+              {/* Image container */}
               <Link to={`/products/${product.id}`} className="relative block">
                 <img
                   src={product.image_url}
                   alt={product.name}
-                  className="w-full h-40 object-cover rounded-lg transition-transform duration-300 hover:scale-105 mb-3"
+                  className="w-full object-cover rounded-lg transition-transform duration-300 hover:scale-105 mb-3"
                   onError={(e) =>
                     (e.target.src =
                       "https://via.placeholder.com/300x200/e5e7eb/6b7280?text=No+Image")
@@ -87,12 +88,16 @@ export default function HomePage({ user, onAddToCart }) {
                 )}
               </Link>
 
+              {/* Content */}
               <div className="space-y-2">
-                <Link to={`/products/${product.id}`} className="hover:text-[#00f0ff] transition">
+                <Link
+                  to={`/products/${product.id}`}
+                  className="hover:text-[#00f0ff] transition"
+                >
                   <h2 className="product-name line-clamp-2">{product.name}</h2>
                 </Link>
 
-                <p className="product-price">${product.price.toFixed(2)}</p>
+                <p className="product-price">{product.price.toFixed(2)}</p>
 
                 <div className="flex flex-wrap gap-1">
                   {product.category && (
@@ -113,11 +118,18 @@ export default function HomePage({ user, onAddToCart }) {
                   </p>
                 )}
 
-                <p className={`text-sm font-medium ${
-                  product.stock > 5 ? 'text-[#00ff9d]' :
-                  product.stock > 0 ? 'text-orange-400' : 'text-red-400'
-                }`}>
-                  {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                <p
+                  className={`text-sm font-medium ${
+                    product.stock > 5
+                      ? "text-[#00ff9d]"
+                      : product.stock > 0
+                      ? "text-orange-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  {product.stock > 0
+                    ? `${product.stock} in stock`
+                    : "Out of stock"}
                 </p>
 
                 <AddToCartButton
