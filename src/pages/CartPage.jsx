@@ -110,73 +110,66 @@ export default function CartPage({ user }) {
       <h1 className="page-title text-center mb-8">Your Cart</h1>
 
       {/* Grid Layout for Cart Items */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {cart.map((item) => (
-          <div key={item.id} className="product-card">
-            {/* Small Product Image */}
-            {item.image_url && (
-              <img
-                src={item.image_url}
-                alt={item.product_name}
-                className="w-full h-40 object-cover rounded-lg mb-3 transition-transform duration-300 hover:scale-105"
-                onError={(e) => { e.target.style.display = 'none'; }}
-              />
-            )}
+   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+    {cart.map((item) => (
+      <div key={item.id} className="product-card">
+       {/* Image with fixed 4:3 aspect ratio */}
+       {item.image_url && (
+         <div className="relative w-full" style={{ aspectRatio: "4 / 3" }}>
+           <img
+             src={item.image_url}
+             alt={item.product_name}
+             className="absolute inset-0 w-full h-full object-cover rounded-lg mb-3 transition-transform duration-300 hover:scale-105"
+             onError={(e) => {
+               e.target.style.display = "none";
+             }}
+           />
+         </div>
+       )}
 
-            {/* Product Details */}
-            <div className="mb-4">
-              <h3 className="product-name mb-2">{item.product_name}</h3>
-              <p className="product-price mb-1">${item.price ? item.price.toFixed(2) : '0.00'}</p>
-              <p className="text-[#8888aa] text-sm">
-                Subtotal: ${((item.price || 0) * item.quantity).toFixed(2)}
-              </p>
-            </div>
+       {/* Product Details */}
+       <div className="mt-3 space-y-2">
+         <h3 className="product-name">{item.product_name}</h3>
+         <p className="product-price">
+          ${item.price ? item.price.toFixed(2) : "0.00"}
+         </p>
+         <p className="text-[#8888aa] text-sm">
+           Subtotal: ${((item.price || 0) * item.quantity).toFixed(2)}
+         </p>
+       </div>
 
-            {/* Quantity Controls */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handleUpdate(item.id, item.quantity - 1)}
-                  disabled={item.quantity <= 1}
-                  className="w-8 h-8 bg-[#00f0ff] text-black font-bold rounded-full hover:scale-110 transition disabled:opacity-50"
-                >
-                  -
-                </button>
-                <span className="px-3 py-1 border border-[#8888aa] rounded text-[#e0e0ff] font-medium">
-                  {item.quantity}
-                </span>
-                <button
-                  onClick={() => handleUpdate(item.id, item.quantity + 1)}
-                  className="w-8 h-8 bg-[#00f0ff] text-black font-bold rounded-full hover:scale-110 transition"
-                >
-                  +
-                </button>
-              </div>
-            </div>
+       {/* Quantity Controls */}
+       <div className="flex items-center justify-between my-4">
+         <div className="flex items-center space-x-2">
+           <button
+             onClick={() => handleUpdate(item.id, item.quantity - 1)}
+             disabled={item.quantity <= 1}
+             className="w-8 h-8 bg-[#00f0ff] text-black font-bold rounded-full hover:scale-110 transition disabled:opacity-50"
+           >
+             -
+           </button>
+           <span className="px-3 py-1 border border-[#8888aa] rounded text-[#e0e0ff] font-medium">
+             {item.quantity}
+           </span>
+           <button
+             onClick={() => handleUpdate(item.id, item.quantity + 1)}
+             className="w-8 h-8 bg-[#00f0ff] text-black font-bold rounded-full hover:scale-110 transition"
+           >
+             +
+           </button>
+         </div>
+       </div>
 
-            {/* Remove Button */}
-            <button
-              onClick={() => handleRemove(item.id)}
-              className="btn btn-secondary w-full"
-            >
-              Remove
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* Cart Total and Checkout */}
-      <div className="product-card max-w-md mx-auto text-center">
-        <p className="text-2xl font-bold text-[#00ff9d] mb-4 glow">
-          Total: ${cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0).toFixed(2)}
-        </p>
-        <button
-          onClick={handleCheckout}
-          className="btn btn-primary w-full"
-        >
-          Checkout
+       {/* Remove Button */}
+       <button
+         onClick={() => handleRemove(item.id)}
+         className="btn btn-secondary w-full"
+       >
+         Remove
         </button>
       </div>
+     ))}
+    </div>
     </div>
   );
 }

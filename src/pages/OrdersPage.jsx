@@ -62,51 +62,65 @@ export default function OrdersPage({ user }) {
     )}
 
     <div className="space-y-6">
-      {orders.map((order) => (
-        <div
-          key={order.id}
-          className="border border-transparent rounded-xl p-6 bg-card-glass shadow-md hover:shadow-xl transition transform hover:-translate-y-1"
-        >
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-text-light">Order #{order.id}</h2>
-            <p className="text-text-muted">{new Date(order.created_at).toLocaleDateString()}</p>
-          </div>
-          
-          <div className="space-y-2 mb-4">
-            {order.items.map((item) => (
-              <div
-                key={item.id}
-                className="flex justify-between items-center py-2 border-b border-gray-700"
-              >
-                <div className="flex items-center space-x-3">
-                  {item.image_url && (
-                    <img 
-                      src={item.image_url} 
-                      alt={item.product}
-                      className="w-14 h-14 object-cover rounded-lg transition-transform duration-300 hover:scale-105"
-                      onError={(e) => { e.target.style.display = 'none'; }}
-                    />
-                  )}
-                  <div>
-                    <span className="font-medium text-text-light">{item.product}</span>
-                    <span className="text-text-muted ml-2">x {item.quantity}</span>
-                  </div>
-                </div>
-                <span className="font-medium text-accent-neon-green">
-                  ${(item.price * item.quantity).toFixed(2)}
-                </span>
+  {orders.map((order) => (
+    <div
+      key={order.id}
+      className="border border-transparent rounded-xl p-6 bg-card-glass shadow-md hover:shadow-xl transition transform hover:-translate-y-1"
+    >
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold text-text-light">
+          Order #{order.id}
+        </h2>
+        <p className="text-text-muted">
+          {new Date(order.created_at).toLocaleDateString()}
+        </p>
+      </div>
+
+      {/* Items in Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        {order.items.map((item) => (
+          <div
+            key={item.id}
+            className="flex items-center space-x-3 border-b border-gray-700 pb-2"
+          >
+            {/* Image with fixed 4:3 aspect ratio */}
+            {item.image_url && (
+              <div className="relative w-20" style={{ aspectRatio: "4 / 3" }}>
+                <img
+                  src={item.image_url}
+                  alt={item.product}
+                  className="absolute inset-0 w-full h-full object-cover rounded-lg transition-transform duration-300 hover:scale-105"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                  }}
+                />
               </div>
-            ))}
+            )}
+
+            <div className="flex-1">
+              <span className="font-medium text-text-light">
+                {item.product}
+              </span>
+              <span className="text-text-muted ml-2">x {item.quantity}</span>
+            </div>
+            <span className="font-medium text-accent-neon-green">
+              ${(item.price * item.quantity).toFixed(2)}
+            </span>
           </div>
-          
-          <div className="flex justify-between items-center pt-2 border-t border-gray-700">
-            <span className="text-lg font-semibold text-text-light">Total:</span>
-            <span className="text-lg font-bold text-accent-neon-green">${order.total.toFixed(2)}</span>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
+
+      {/* Order Total */}
+      <div className="flex justify-between items-center pt-2 border-t border-gray-700">
+        <span className="text-lg font-semibold text-text-light">Total:</span>
+        <span className="text-lg font-bold text-accent-neon-green">
+          ${order.total.toFixed(2)}
+        </span>
+      </div>
     </div>
-  </div>
+  ))}
+</div>
+</div>
 );
 
 
