@@ -10,6 +10,7 @@ This project demonstrates full-stack engineering skills by integrating:
 - CRUD operations, form validation, and database persistence.  
 
 ---
+- Here is the link to the backend repository: https://github.com/cindy-kivala/Cartify-Backend
 
 ## Features
 
